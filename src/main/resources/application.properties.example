@@ -1,0 +1,6 @@
+spring.application.name=lms-backend
+spring.datasource.username
+spring.datasource.password
+spring.jpa.hibernate.ddl-auto=validate
+spring.jpa.show-sql
+spring.jpa.properties.hibernate.format_sql
