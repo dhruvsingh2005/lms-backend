@@ -1,0 +1,1898 @@
+openapi: 3.0.3
+
+info:
+  title: Learning Management System (LMS) API
+  description: |
+    ## Overview
+    This is the REST API documentation for the **Learning Management System (LMS)**.
+    It supports operations for Students, Instructors, Courses, Assignments, Enrollments, and Departments.
+
+    ## Authentication
+    All protected routes require a **JWT Token** delivered via an HTTP-only cookie upon successful login.
+    Include the cookie in subsequent requests automatically via your HTTP client (browser / Axios with `withCredentials: true`)
+
+    ## Response Format
+    Every response — success **and** error — follows a unified envelope:
+    ```json
+    {
+      "status": 200,
+      "message": "Operation successful",
+      "data": { ... }
+    }
+    ```
+
+    ## Groups
+    | Tag | Description |
+    |-----|-------------|
+    | Auth | Login endpoints for Students and Instructors |
+    | Students | Student registration and profile management |
+    | Instructors | Instructor registration |
+    | Courses | Course creation, browsing, and management |
+    | Enrollments | Course enrollment operations |
+    | Assignments | Assignment creation, retrieval, and submission |
+    | Departments | Department lookup |
+
+  version: 1.0.0
+  contact:
+    name: LMS API Support
+
+servers:
+  - url: http://localhost:8080/api
+    description: Local Development Server
+
+tags:
+  - name: Auth
+    description: |
+      Authentication endpoints. On successful login, a **JWT token** is set as an
+      HTTP-only cookie (`token`) in the response header. All subsequent protected
+      API calls must send this cookie.
+  - name: Students
+    description: |
+      Endpoints for student self-registration and profile management.
+      Profile update and retrieval require the student to be authenticated.
+  - name: Instructors
+    description: |
+      Endpoints for instructor registration. Instructors belong to a Department.
+  - name: Courses
+    description: |
+      Endpoints to create, browse, and manage courses.
+      Students can view available courses and their enrolled courses.
+      Instructors can manage courses they own.
+  - name: Enrollments
+    description: |
+      Endpoints to enroll a student in a course and view enrolled students in a course.
+  - name: Assignments
+    description: |
+      Endpoints to create assignments for a course, retrieve them, and submit solutions.
+  - name: Departments
+    description: |
+      Endpoints to retrieve all available departments. Used when registering an Instructor or creating a Course.
+
+# ─────────────────────────────────────────────
+#  PATHS
+# ─────────────────────────────────────────────
+paths:
+
+  # ══════════════════════════════════════════
+  #  AUTH
+  # ══════════════════════════════════════════
+
+  /public/v1/auth/login:
+    post:
+      tags:
+        - Auth
+      summary: User Login
+      description: |
+        Authenticates a user using their email and password.
+        On success, a **JWT token** is set as an HTTP-only cookie in the response header (`Set-Cookie: token=<jwt>`).
+        The client must include this cookie in all subsequent authenticated requests.
+      operationId: login
+      parameters:
+        - name: role
+          in: query
+          description: User role for login
+          required: false
+          schema:
+            type: string
+            enum:
+              - student
+              - instructor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            example:
+              email: student@example.com
+              password: "Secret@123"
+      responses:
+        '200':
+          description: Login successful. JWT cookie is set in the response header.
+          headers:
+            Set-Cookie:
+              description: HTTP-only JWT token cookie. Example — `token=eyJhbGci...; HttpOnly; Secure; SameSite=Strict`
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseApiResponse'
+              example:
+                status: 200
+                message: "Login successful"
+                data: null
+        
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # ══════════════════════════════════════════
+  #  STUDENTS
+  # ══════════════════════════════════════════
+
+  /public/v1/student:
+    post:
+      tags:
+        - Students
+      summary: Register a new Student
+      description: |
+        Creates a new student account. The password is stored securely (hashed).
+        No authentication is required for this endpoint.
+      operationId: createStudent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateStudentRequest'
+            example:
+              name: "Rohit Sharma"
+              email: "rohit.sharma@example.com"
+              password: "Secret@123"
+              mobileNo: "9876543210"
+      responses:
+        '201':
+          description: Student registered successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentApiResponse'
+              example:
+                status: 201
+                message: "Student registered successfully"
+                data:
+                  id: "stu_001"
+                  name: "Rohit Sharma"
+                  email: "rohit.sharma@example.com"
+                  mobileNo: "9876543210"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /v1/student/profile:
+    get:
+      tags:
+        - Students
+      summary: Get Student Profile
+      description: |
+        Returns the profile information of the currently authenticated student.
+        Requires a valid JWT cookie.
+      operationId: getStudentProfile
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Student profile fetched successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentApiResponse'
+              example:
+                status: 200
+                message: "Student profile fetched successfully"
+                data:
+                  id: "stu_001"
+                  name: "Rohit Sharma"
+                  email: "rohit.sharma@example.com"
+                  mobileNo: "9876543210"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    put:
+      tags:
+        - Students
+      summary: Update Student Profile
+      description: |
+        Updates the profile of the currently authenticated student.
+        Only `name`, `email`, and `mobileNo` can be changed here.
+        Password change should be handled via a separate dedicated endpoint (recommended).
+      operationId: updateStudentProfile
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateStudentRequest'
+            example:
+              name: "Rohit Kumar Sharma"
+              email: "rohit.new@example.com"
+              mobileNo: "9123456780"
+      responses:
+        '200':
+          description: Student profile updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentApiResponse'
+              example:
+                status: 200
+                message: "Profile updated successfully"
+                data:
+                  id: "stu_001"
+                  name: "Rohit Kumar Sharma"
+                  email: "rohit.new@example.com"
+                  mobileNo: "9123456780"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # ══════════════════════════════════════════
+  #  INSTRUCTORS
+  # ══════════════════════════════════════════
+
+  /public/v1/instructor:
+    post:
+      tags:
+        - Instructors
+      summary: Register a new Instructor
+      description: |
+        Creates a new instructor account associated with a department.
+        `departmentId` must be a valid existing department ID (see `GET /department/all`).
+        No authentication is required for this endpoint.
+      operationId: createInstructor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateInstructorRequest'
+            example:
+              name: "Dr. Priya Menon"
+              email: "priya.menon@example.com"
+              password: "Secure@456"
+              mobileNo: "9988776655"
+              experience: 8
+              departmentId: "dept_03"
+      responses:
+        '201':
+          description: Instructor registered successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstructorApiResponse'
+              example:
+                status: 201
+                message: "Instructor registered successfully"
+                data:
+                  id: "inst_001"
+                  name: "Dr. Priya Menon"
+                  email: "priya.menon@example.com"
+                  mobileNo: "9988776655"
+                  experience: 8
+                  departmentId: "dept_03"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # ══════════════════════════════════════════
+  #  COURSES
+  # ══════════════════════════════════════════
+
+  /v1/course:
+    post:
+      tags:
+        - Courses
+      summary: Create a new Course
+      description: |
+        Creates a new course. The authenticated instructor is assigned as the course owner via `instructorId`.
+        `courseContent` must be a publicly accessible URL (e.g., Google Drive, S3, YouTube playlist).
+        `endDate` must be after `startDate`.
+      operationId: createCourse
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCourseRequest'
+            example:
+              instructorId: "inst_001"
+              title: "Full Stack Web Development"
+              description: "Learn HTML, CSS, JS, React and Node from scratch."
+              startDate: "2024-08-01"
+              endDate: "2024-12-31"
+              price: 4999.00
+              department: "dept_03"
+              courseContent: "https://drive.google.com/drive/folders/example"
+      responses:
+        '201':
+          description: Course created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseApiResponse'
+              example:
+                status: 201
+                message: "Course created successfully"
+                data:
+                  id: "crs_001"
+                  title: "Full Stack Web Development"
+                  description: "Learn HTML, CSS, JS, React and Node from scratch."
+                  startDate: "2024-08-01"
+                  endDate: "2024-12-31"
+                  price: 4999.00
+                  departmentName: "Computer Science"
+                  instructorId: "inst_001"
+                  courseContent: "https://drive.google.com/drive/folders/example"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /v1/course/available:
+    get:
+      tags:
+        - Courses
+      summary: Get all available Courses
+      description: |
+        Returns a list of all publicly available courses.
+        This is a **public endpoint** — no authentication required.
+        `courseContent` (link) and `enrollmentCount` are not included in this response for brevity.
+      operationId: getAvailableCourses
+      responses:
+        '200':
+          description: List of available courses fetched successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseListApiResponse'
+              example:
+                status: 200
+                message: "Available courses fetched successfully"
+                data:
+                  content:
+                    - id: "crs_001"
+                      title: "Full Stack Web Development"
+                      description: "Learn HTML, CSS, JS, React and Node from scratch."
+                      startDate: "2024-08-01"
+                      endDate: "2024-12-31"
+                      price: 4999.00
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /v1/student/course/enrollment:
+    get:
+      tags:
+        - Courses
+      summary: Get Courses enrolled by the authenticated Student
+      description: |
+        Returns a paginated list of courses the authenticated student is enrolled in.
+        Each item includes the enrollment `status`. Course `price` is **not** included in this view.
+        Requires a valid student JWT cookie.
+      operationId: getStudentEnrolledCourses
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: status
+          in: query
+          description: Filter courses by status
+          required: false
+          schema:
+            type: string
+            enum:
+              - active
+              - completed
+      responses:
+        '200':
+          description: Enrolled courses fetched successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentCoursePageApiResponse'
+              example:
+                status: 200
+                message: "Enrolled courses fetched successfully"
+                data:
+                  content:
+                    - id: "crs_001"
+                      title: "Full Stack Web Development"
+                      description: "Learn HTML, CSS, JS, React and Node."
+                      startDate: "2024-08-01"
+                      endDate: "2024-12-31"
+                      status: "ACTIVE"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /v1/instructor/course:
+    get:
+      tags:
+        - Courses
+      summary: Get Active Courses for Instructor
+      description: |
+        Returns a paginated list of currently active courses owned by the authenticated instructor.
+        A course is "active" when the current date is between `startDate` and `endDate`.
+        `courseContent` is not included here — use `GET /course/{courseId}/content` for that.
+      operationId: getActiveInstructorCourses
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: status
+          in: query
+          description: Filter courses by status
+          required: false
+          schema:
+            type: string
+            enum:
+              - active
+              - completed
+      responses:
+        '200':
+          description: Active courses fetched successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseStatusPageApiResponse'
+              example:
+                status: 200
+                message: "Active courses fetched successfully"
+                data:
+                  content:
+                    - id: "crs_001"
+                      title: "Full Stack Web Development"
+                      price: 4999.00
+                      status: "ACTIVE"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  
+  /v1/course/{courseId}:
+    get:
+      tags:
+        - Courses
+      summary: Get Course Details
+      description: |
+        Returns detailed information for a specific course.
+      operationId: getCourseById
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/courseId'
+      responses:
+        '200':
+          description: Enrolled course detail fetched successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseDetailApiResponse'
+              example:
+                status: 200
+                message: "Course detail fetched successfully"
+                data:
+                  id: "crs_001"
+                  title: "Full Stack Web Development"
+                  description: "Learn HTML, CSS, JS, React and Node from scratch."
+                  startDate: "2024-08-01"
+                  endDate: "2024-12-31"
+                  price: 4999.00
+                  instructorName: "Dr. Priya Menon"
+                  enrollmentCount: 142
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /v1/course/{courseId}/content:
+    get:
+      tags:
+        - Courses
+      summary: Get Course Content Link
+      description: |
+        Returns the content link (URL) for a specific course.
+        Only enrolled students or the course instructor can access this.
+        The link typically points to external course material (e.g., Google Drive, YouTube playlist).
+      operationId: getCourseContent
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/courseId'
+      responses:
+        '200':
+          description: Course content link fetched successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseContentApiResponse'
+              example:
+                status: 200
+                message: "Course content fetched successfully"
+                data:
+                  courseContent: "https://drive.google.com/drive/folders/example"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # ══════════════════════════════════════════
+  #  ENROLLMENTS
+  # ══════════════════════════════════════════
+
+  /v1/course/{courseId}/enrollment:
+    post:
+      tags:
+        - Enrollments
+      summary: Enroll Student in a Course
+      description: |
+        Enrolls the currently authenticated student in the specified course.
+        A student **cannot** enroll in the same course twice — returns `409 Conflict` if already enrolled.
+        A student **cannot** enroll in a completed/expired course — returns `400 Bad Request`.
+      operationId: enrollInCourse
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/courseId'
+      responses:
+        '201':
+          description: Enrollment successful.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnrollmentApiResponse'
+              example:
+                status: 201
+                message: "Enrollment successful"
+                data:
+                  enrollmentId: "enr_00123"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    get:
+      tags:
+        - Enrollments
+      summary: Get Enrolled Students for a Course
+      description: |
+        Returns a list of all students enrolled in the specified course.
+        Only the course instructor or an admin should be able to call this endpoint.
+        Each item includes the student's basic profile information.
+      operationId: getEnrolledStudents
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/courseId'
+        - name: status
+          in: query
+          description: Filter enrollments by status
+          required: false
+          schema:
+            type: string
+            enum:
+              - Pending
+              - accepted
+              - rejected
+      responses:
+        '200':
+          description: Enrolled students fetched successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnrolledStudentsApiResponse'
+              example:
+                status: 200
+                message: "Enrolled students fetched successfully"
+                data:
+                  - id: "stu_001"
+                    name: "Rohit Sharma"
+                    email: "rohit.sharma@example.com"
+                    mobileNo: "9876543210"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # ══════════════════════════════════════════
+  #  ASSIGNMENTS
+  # ══════════════════════════════════════════
+
+  /v1/course/{courseId}/assignment:
+    post:
+      tags:
+        - Assignments
+      summary: Create a new Assignment
+      description: |
+        Creates a new assignment for a course. Only the course instructor can create assignments.
+        `assignmentSource` must be a publicly accessible URL (e.g., PDF link, Google Doc).
+        `dueDate` must be a future date and ideally within the course `endDate`.
+      operationId: createAssignment
+      security:
+        - cookieAuth: []
+      parameters: 
+        - $ref: '#/components/parameters/courseId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAssignmentRequest'
+            example:
+              courseId: "crs_001"
+              title: "Assignment 1 - Build a REST API"
+              description: "Create a fully functional REST API using Node.js and Express."
+              dueDate: "2024-09-15"
+              assignmentSource: "https://docs.google.com/document/d/example"
+      responses:
+        '201':
+          description: Assignment created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssignmentApiResponse'
+              example:
+                status: 201
+                message: "Assignment created successfully"
+                data:
+                  id: "asgn_001"
+                  courseId: "crs_001"
+                  title: "Assignment 1 - Build a REST API"
+                  description: "Create a fully functional REST API using Node.js and Express."
+                  dueDate: "2024-09-15"
+                  assignmentSource: "https://docs.google.com/document/d/example"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /v1/assignment/{assignmentId}:
+    get:
+      tags:
+        - Assignments
+      summary: Get Assignment Details
+      description: |
+        Returns detailed information about a specific assignment including `submissionCount`.
+        Instructors see `submissionCount`. Students see due date and description.
+        Both roles need to be associated with the course.
+      operationId: getAssignmentById
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/assignmentId'
+      responses:
+        '200':
+          description: Assignment details fetched successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssignmentDetailApiResponse'
+              example:
+                status: 200
+                message: "Assignment fetched successfully"
+                data:
+                  id: "asgn_001"
+                  title: "Assignment 1 - Build a REST API"
+                  description: "Create a fully functional REST API using Node.js and Express."
+                  dueDate: "2024-09-15"
+                  submissionCount: 34
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /v1/assignment/{assignmentId}/submission:
+    post:
+      tags:
+        - Assignments
+      summary: Submit an Assignment
+      description: |
+        Allows an enrolled student to submit a solution for an assignment.
+        `submissionSource` must be a publicly accessible URL (e.g., GitHub repo, Google Doc).
+        Submissions **after** `dueDate` may be flagged as late depending on business logic.
+        A student cannot submit twice for the same assignment (returns `409 Conflict`).
+      operationId: submitAssignment
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/assignmentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmitAssignmentRequest'
+            example:
+              submissionSource: "https://github.com/student/rest-api-project"
+      responses:
+        '200':
+          description: Assignment submitted successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseApiResponse'
+              example:
+                status: 200
+                message: "Assignment submitted successfully"
+                data: null
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /v1/assignment/{assignmentId}/submissions:
+    get:
+      tags:
+        - Assignments
+      summary: Get Submissions for an Assignment (Instructor)
+      description: |
+        Returns a list of all student submissions for a specific assignment.
+        Only the course instructor can access this endpoint.
+        Each item includes the student's name, phone number, submission date, and submission source URL.
+      operationId: getAssignmentSubmissions
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/assignmentId'
+      responses:
+        '200':
+          description: Submissions fetched successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubmissionsListApiResponse'
+              example:
+                status: 200
+                message: "Submissions fetched successfully"
+                data:
+                  - id: "sub_001"
+                    name: "Rohit Sharma"
+                    mobileNo: "9876543210"
+                    submissionDate: "2024-09-10T14:30:00Z"
+                    submissionSource: "https://github.com/student/rest-api-project"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /v1/student/course/{courseId}/assignment:
+    get:
+      tags:
+        - Assignments
+      summary: Get Assignments for a Student by Course (with status filter)
+      description: |
+        Returns a list of assignments for a specific course that the authenticated student is enrolled in.
+        Supports optional filtering by assignment status:
+        - `PENDING` — assignments not yet submitted
+        - `FAILED_SUBMISSION` — assignments where the submission was rejected or failed
+
+        If no `status` query param is provided, all assignments for the course are returned.
+      operationId: getStudentCourseAssignments
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/courseId'
+        - name: status
+          in: query
+          description: Filter assignments by submission status.
+          required: false
+          schema:
+            type: string
+            enum:
+              - PENDING
+              - FAILED_SUBMISSION
+      responses:
+        '200':
+          description: Assignments fetched successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssignmentListApiResponse'
+              example:
+                status: 200
+                message: "Assignments fetched successfully"
+                data:
+                  - id: "asgn_001"
+                    courseId: "crs_001"
+                    title: "Assignment 1 - Build a REST API"
+                    description: "Create a fully functional REST API using Node.js and Express."
+                    dueDate: "2024-09-15"
+                    assignmentSource: "https://docs.google.com/document/d/example"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /v1/instructor/course/{courseId}/assignments:
+    get:
+      tags:
+        - Assignments
+      summary: Get Assignments for a Course (Instructor view)
+      description: |
+        Returns a list of all assignments created for a specific course.
+        Only the course instructor can access this endpoint.
+        Each item includes `id`, `title`, and `assignmentSource` (link).
+      operationId: getInstructorCourseAssignments
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/courseId'
+        - name: status
+          in: query
+          description: Filter assignments by status
+          required: false
+          schema:
+            type: string
+            enum:
+              - active
+              - expired
+      responses:
+        '200':
+          description: Assignments fetched successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssignmentListApiResponse'
+              example:
+                status: 200
+                message: "Assignments fetched successfully"
+                data:
+                  - id: "asgn_001"
+                    title: "Assignment 1 - Build a REST API"
+                    assignmentSource: "https://docs.google.com/document/d/example"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # ══════════════════════════════════════════
+  #  DEPARTMENTS
+  # ══════════════════════════════════════════
+
+  /public/v1/department/all:
+    get:
+      tags:
+        - Departments
+      summary: Get all Departments
+      description: |
+        Returns a list of all available departments.
+        This is a **public endpoint** — no authentication required.
+        Use the returned `id` when registering an Instructor (`POST /instructor`) or creating a Course (`POST /course`).
+      operationId: getAllDepartments
+      responses:
+        '200':
+          description: Departments fetched successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DepartmentListApiResponse'
+              example:
+                status: 200
+                message: "Departments fetched successfully"
+                data:
+                  - id: "dept_01"
+                    name: "Computer Science"
+                  - id: "dept_02"
+                    name: "Mathematics"
+                  - id: "dept_03"
+                    name: "Physics"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+# ─────────────────────────────────────────────
+#  COMPONENTS
+# ─────────────────────────────────────────────
+components:
+
+  # ── Security ──────────────────────────────
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: token
+      description: JWT token stored as an HTTP-only cookie. Set automatically on login via `Set-Cookie` response header.
+
+  # ── Parameters ────────────────────────────
+  parameters:
+    courseId:
+      name: courseId
+      in: path
+      required: true
+      description: Unique identifier of the Course.
+      schema:
+        type: string
+        example: "crs_001"
+
+    assignmentId:
+      name: assignmentId
+      in: path
+      required: true
+      description: Unique identifier of the Assignment.
+      schema:
+        type: string
+        example: "asgn_001"
+
+  # ── Request Schemas ────────────────────────
+  schemas:
+
+    # --- Requests ---
+
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          description: Registered email address.
+          example: "user@example.com"
+        password:
+          type: string
+          format: password
+          minLength: 6
+          description: Account password.
+          example: "Secret@123"
+
+    CreateStudentRequest:
+      type: object
+      required:
+        - name
+        - email
+        - password
+        - mobileNo
+      properties:
+        name:
+          type: string
+          description: Full name of the student.
+          example: "Rohit Sharma"
+        email:
+          type: string
+          format: email
+          description: Valid email address. Must be unique in the system.
+          example: "rohit@example.com"
+        password:
+          type: string
+          format: password
+          minLength: 6
+          description: Password for the student account. Will be hashed before storage.
+          example: "Secret@123"
+        mobileNo:
+          type: string
+          pattern: '^\d{10}$'
+          description: 10-digit mobile number.
+          example: "9876543210"
+
+    UpdateStudentRequest:
+      type: object
+      required:
+        - name
+        - email
+        - mobileNo
+      properties:
+        name:
+          type: string
+          description: Updated full name.
+          example: "Rohit Kumar Sharma"
+        email:
+          type: string
+          format: email
+          description: Updated email address. Must be unique.
+          example: "rohit.new@example.com"
+        mobileNo:
+          type: string
+          pattern: '^\d{10}$'
+          description: Updated 10-digit mobile number.
+          example: "9123456780"
+
+    CreateInstructorRequest:
+      type: object
+      required:
+        - name
+        - email
+        - password
+        - mobileNo
+        - experience
+        - departmentId
+      properties:
+        name:
+          type: string
+          description: Full name of the instructor.
+          example: "Dr. Priya Menon"
+        email:
+          type: string
+          format: email
+          description: Valid email. Must be unique.
+          example: "priya@example.com"
+        password:
+          type: string
+          format: password
+          minLength: 6
+          description: Password. Will be hashed before storage.
+          example: "Secure@456"
+        mobileNo:
+          type: string
+          pattern: '^\d{10}$'
+          description: 10-digit mobile number.
+          example: "9988776655"
+        experience:
+          type: integer
+          minimum: 0
+          description: Years of teaching/industry experience.
+          example: 8
+        departmentId:
+          type: string
+          description: ID of the department the instructor belongs to. Must exist in the system.
+          example: "dept_03"
+
+    CreateCourseRequest:
+      type: object
+      required:
+        - instructorId
+        - title
+        - description
+        - startDate
+        - endDate
+        - price
+        - department
+        - courseContent
+      properties:
+        instructorId:
+          type: string
+          description: ID of the instructor creating the course.
+          example: "inst_001"
+        title:
+          type: string
+          description: Title of the course.
+          example: "Full Stack Web Development"
+        description:
+          type: string
+          description: Brief description of the course.
+          example: "Learn HTML, CSS, JS, React and Node from scratch."
+        startDate:
+          type: string
+          format: date
+          description: Course start date (YYYY-MM-DD). Must be today or a future date.
+          example: "2024-08-01"
+        endDate:
+          type: string
+          format: date
+          description: Course end date (YYYY-MM-DD). Must be after startDate.
+          example: "2024-12-31"
+        price:
+          type: number
+          format: float
+          minimum: 0
+          description: Enrollment price in INR. Use 0 for free courses.
+          example: 4999.00
+        department:
+          type: string
+          description: Department ID the course belongs to.
+          example: "dept_03"
+        courseContent:
+          type: string
+          format: uri
+          description: URL pointing to the course material (Google Drive, YouTube, S3, etc.).
+          example: "https://drive.google.com/drive/folders/example"
+
+    CreateAssignmentRequest:
+      type: object
+      required:
+        - title
+        - description
+        - dueDate
+        - assignmentSource
+      properties:
+        title:
+          type: string
+          description: Title of the assignment.
+          example: "Assignment 1 - Build a REST API"
+        description:
+          type: string
+          description: Detailed instructions for the assignment.
+          example: "Create a fully functional REST API using Node.js and Express."
+        dueDate:
+          type: string
+          format: date
+          description: Due date for the assignment (YYYY-MM-DD). Should be before the course endDate.
+          example: "2024-09-15"
+        assignmentSource:
+          type: string
+          format: uri
+          description: URL to the assignment document/resource.
+          example: "https://docs.google.com/document/d/example"
+
+    SubmitAssignmentRequest:
+      type: object
+      required:
+        - submissionSource
+      properties:
+        submissionSource:
+          type: string
+          format: uri
+          description: URL to the submitted work (GitHub repo, Google Doc, PDF link, etc.).
+          example: "https://github.com/student/rest-api-project"
+
+    # --- Response Data Objects ---
+
+    StudentData:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique student identifier.
+          example: "stu_001"
+        name:
+          type: string
+          description: Full name of the student.
+          example: "Rohit Sharma"
+        email:
+          type: string
+          format: email
+          description: Email address.
+          example: "rohit@example.com"
+        mobileNo:
+          type: string
+          description: 10-digit mobile number.
+          example: "9876543210"
+
+    InstructorData:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique instructor identifier.
+          example: "inst_001"
+        name:
+          type: string
+          description: Full name of the instructor.
+          example: "Dr. Priya Menon"
+        email:
+          type: string
+          format: email
+          example: "priya@example.com"
+        mobileNo:
+          type: string
+          example: "9988776655"
+        experience:
+          type: integer
+          description: Years of experience.
+          example: 8
+        departmentId:
+          type: string
+          description: ID of the department.
+          example: "dept_03"
+
+    CourseData:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique course identifier.
+          example: "crs_001"
+        title:
+          type: string
+          example: "Full Stack Web Development"
+        description:
+          type: string
+          example: "Learn HTML, CSS, JS, React and Node from scratch."
+        startDate:
+          type: string
+          format: date
+          example: "2024-08-01"
+        endDate:
+          type: string
+          format: date
+          example: "2024-12-31"
+        price:
+          type: number
+          format: float
+          example: 4999.00
+        departmentName:
+          type: string
+          description: Human-readable name of the department (not just the ID).
+          example: "Computer Science"
+        instructorId:
+          type: string
+          example: "inst_001"
+        courseContent:
+          type: string
+          format: uri
+          example: "https://drive.google.com/drive/folders/example"
+
+    CourseDetailData:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "crs_001"
+        title:
+          type: string
+          example: "Full Stack Web Development"
+        description:
+          type: string
+          example: "Learn HTML, CSS, JS, React and Node from scratch."
+        startDate:
+          type: string
+          format: date
+          example: "2024-08-01"
+        endDate:
+          type: string
+          format: date
+          example: "2024-12-31"
+        price:
+          type: number
+          format: float
+          example: 4999.00
+        instructorName:
+          type: string
+          description: Full name of the instructor.
+          example: "Dr. Priya Menon"
+        enrollmentCount:
+          type: integer
+          description: Total number of enrolled students.
+          example: 142
+
+    CourseContentData:
+      type: object
+      properties:
+        courseContent:
+          type: string
+          format: uri
+          description: URL to the course content.
+          example: "https://drive.google.com/drive/folders/example"
+
+    StudentCourseItem:
+      type: object
+      description: A course as seen by an enrolled student (no price).
+      properties:
+        id:
+          type: string
+          example: "crs_001"
+        title:
+          type: string
+          example: "Full Stack Web Development"
+        description:
+          type: string
+          example: "Learn HTML, CSS, JS, React and Node."
+        startDate:
+          type: string
+          format: date
+          example: "2024-08-01"
+        endDate:
+          type: string
+          format: date
+          example: "2024-12-31"
+        status:
+          type: string
+          description: Enrollment status.
+          enum:
+            - ACTIVE
+            - COMPLETED
+            - UPCOMING
+          example: "ACTIVE"
+
+    CourseStatusItem:
+      type: object
+      description: Minimal course item used in active/completed lists.
+      properties:
+        id:
+          type: string
+          example: "crs_001"
+        title:
+          type: string
+          example: "Full Stack Web Development"
+        price:
+          type: number
+          format: float
+          example: 4999.00
+        status:
+          type: string
+          enum:
+            - ACTIVE
+            - COMPLETED
+          example: "ACTIVE"
+
+    AssignmentData:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique assignment identifier.
+          example: "asgn_001"
+        courseId:
+          type: string
+          example: "crs_001"
+        title:
+          type: string
+          example: "Assignment 1 - Build a REST API"
+        description:
+          type: string
+          example: "Create a fully functional REST API."
+        dueDate:
+          type: string
+          format: date
+          example: "2024-09-15"
+        assignmentSource:
+          type: string
+          format: uri
+          example: "https://docs.google.com/document/d/example"
+
+    AssignmentDetailData:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "asgn_001"
+        title:
+          type: string
+          example: "Assignment 1 - Build a REST API"
+        description:
+          type: string
+          example: "Create a fully functional REST API."
+        dueDate:
+          type: string
+          format: date
+          example: "2024-09-15"
+        submissionCount:
+          type: integer
+          description: Total number of submissions received for this assignment.
+          example: 34
+
+    SubmissionItem:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique submission identifier.
+          example: "sub_001"
+        name:
+          type: string
+          description: Student's full name.
+          example: "Rohit Sharma"
+        mobileNo:
+          type: string
+          description: Student's mobile number.
+          example: "9876543210"
+        submissionDate:
+          type: string
+          format: date-time
+          description: Timestamp when the submission was made.
+          example: "2024-09-10T14:30:00Z"
+        submissionSource:
+          type: string
+          format: uri
+          description: URL to the submitted work.
+          example: "https://github.com/student/rest-api-project"
+
+    EnrollmentData:
+      type: object
+      properties:
+        enrollmentId:
+          type: string
+          description: Unique enrollment identifier.
+          example: "enr_00123"
+
+    DepartmentData:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique department identifier.
+          example: "dept_01"
+        name:
+          type: string
+          description: Name of the department.
+          example: "Computer Science"
+
+    # --- Standardized API Response Envelopes ---
+
+    BaseApiResponse:
+      type: object
+      description: |
+        Base response envelope used by all API responses.
+        Every endpoint — success or error — returns this structure.
+      properties:
+        status:
+          type: integer
+          description: HTTP status code mirrored in the body for client convenience.
+          example: 200
+        message:
+          type: string
+          description: Human-readable message describing the outcome.
+          example: "Operation successful"
+        data:
+          description: The response payload. `null` for operations with no return data (e.g., login, submit).
+          nullable: true
+          example: null
+
+    StudentApiResponse:
+      type: object
+      description: API response envelope wrapping a single Student object.
+      properties:
+        status:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: "Operation successful"
+        data:
+          $ref: '#/components/schemas/StudentData'
+
+    InstructorApiResponse:
+      type: object
+      description: API response envelope wrapping a single Instructor object.
+      properties:
+        status:
+          type: integer
+          example: 201
+        message:
+          type: string
+          example: "Instructor registered successfully"
+        data:
+          $ref: '#/components/schemas/InstructorData'
+
+    CourseApiResponse:
+      type: object
+      description: API response envelope wrapping a single Course object (includes departmentName).
+      properties:
+        status:
+          type: integer
+          example: 201
+        message:
+          type: string
+          example: "Course created successfully"
+        data:
+          $ref: '#/components/schemas/CourseData'
+
+    CourseDetailApiResponse:
+      type: object
+      description: API response envelope wrapping detailed Course info (instructorName + enrollmentCount).
+      properties:
+        status:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: "Course details fetched successfully"
+        data:
+          $ref: '#/components/schemas/CourseDetailData'
+
+    CourseContentApiResponse:
+      type: object
+      description: API response envelope wrapping the course content URL.
+      properties:
+        status:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: "Course content fetched successfully"
+        data:
+          $ref: '#/components/schemas/CourseContentData'
+
+    CourseListApiResponse:
+      type: object
+      description: API response envelope wrapping a list of available courses.
+      properties:
+        status:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: "Available courses fetched successfully"
+        data:
+          type: object
+          properties:
+            content:
+              type: array
+              items:
+                $ref: '#/components/schemas/CourseDetailData'
+
+    StudentCoursePageApiResponse:
+      type: object
+      description: API response envelope wrapping a paginated list of courses for a student (no price).
+      properties:
+        status:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: "Enrolled courses fetched successfully"
+        data:
+          type: object
+          properties:
+            content:
+              type: array
+              items:
+                $ref: '#/components/schemas/StudentCourseItem'
+
+    CourseStatusPageApiResponse:
+      type: object
+      description: API response envelope wrapping a paginated list of courses filtered by status (active or completed).
+      properties:
+        status:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: "Courses fetched successfully"
+        data:
+          type: object
+          properties:
+            content:
+              type: array
+              items:
+                $ref: '#/components/schemas/CourseStatusItem'
+
+    AssignmentApiResponse:
+      type: object
+      description: API response envelope wrapping a single Assignment object.
+      properties:
+        status:
+          type: integer
+          example: 201
+        message:
+          type: string
+          example: "Assignment created successfully"
+        data:
+          $ref: '#/components/schemas/AssignmentData'
+
+    AssignmentDetailApiResponse:
+      type: object
+      description: API response envelope wrapping detailed Assignment info (with submissionCount).
+      properties:
+        status:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: "Assignment fetched successfully"
+        data:
+          $ref: '#/components/schemas/AssignmentDetailData'
+
+    AssignmentListApiResponse:
+      type: object
+      description: API response envelope wrapping a list of Assignment objects.
+      properties:
+        status:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: "Assignments fetched successfully"
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AssignmentData'
+
+    SubmissionsListApiResponse:
+      type: object
+      description: API response envelope wrapping a list of Assignment Submission objects.
+      properties:
+        status:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: "Submissions fetched successfully"
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubmissionItem'
+
+    EnrollmentApiResponse:
+      type: object
+      description: API response envelope wrapping an Enrollment object.
+      properties:
+        status:
+          type: integer
+          example: 201
+        message:
+          type: string
+          example: "Enrollment successful"
+        data:
+          $ref: '#/components/schemas/EnrollmentData'
+
+    EnrolledStudentsApiResponse:
+      type: object
+      description: API response envelope wrapping a list of enrolled students for a course.
+      properties:
+        status:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: "Enrolled students fetched successfully"
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/StudentData'
+
+    DepartmentListApiResponse:
+      type: object
+      description: API response envelope wrapping a list of Department objects.
+      properties:
+        status:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: "Departments fetched successfully"
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/DepartmentData'
+
+    # --- Standard Error Response ---
+
+    ErrorApiResponse:
+      type: object
+      description: |
+        Standard error response envelope. Follows the same structure as success responses
+        with `success: false` and a descriptive `message`.
+      properties:
+        status:
+          type: integer
+          description: HTTP error status code.
+          example: 400
+        message:
+          type: string
+          description: Human-readable error description.
+          example: "Validation failed: email is required"
+        data:
+          nullable: true
+          example: null
+
+  # ── Reusable Error Responses ──────────────
+  responses:
+
+    BadRequest:
+      description: |
+        **400 Bad Request** — The request body or query parameters are invalid or malformed.
+        Common causes:
+        - Missing required fields (e.g., `email`, `password`)
+        - Invalid field format (e.g., `mobileNo` is not 10 digits, `email` is not valid)
+        - `endDate` is before `startDate`
+        - Trying to enroll in an expired/completed course
+        - `dueDate` is in the past
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorApiResponse'
+          examples:
+            missingField:
+              summary: Missing required field
+              value:
+                status: 400
+                message: "Validation failed: 'email' is required"
+                data: null
+            invalidFormat:
+              summary: Invalid mobile number format
+              value:
+                status: 400
+                message: "Validation failed: 'mobileNo' must be a 10-digit number"
+                data: null
+            invalidDateRange:
+              summary: End date before start date
+              value:
+                status: 400
+                message: "Validation failed: 'endDate' must be after 'startDate'"
+                data: null
+            courseExpired:
+              summary: Enrolling in an expired course
+              value:
+                status: 400
+                message: "Cannot enroll: course has already ended"
+                data: null
+
+    Unauthorized:
+      description: |
+        **401 Unauthorized** — Authentication is required but the JWT cookie is missing, invalid, or expired.
+        The client should redirect the user to the login page.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorApiResponse'
+          examples:
+            missingToken:
+              summary: No JWT cookie provided
+              value:
+                status: 401
+                message: "Unauthorized"
+                data: null
+            expiredToken:
+              summary: JWT token has expired
+              value:
+                status: 401
+                message: "Authentication failed: token has expired"
+                data: null
+            invalidCredentials:
+              summary: Wrong email or password on login
+              value:
+                status: 401
+                message: "Invalid email or password"
+                data: null
+
+    Forbidden:
+      description: |
+        **403 Forbidden** — The authenticated user does not have permission to perform this action.
+        Common causes:
+        - A student tries to access an instructor-only endpoint
+        - An instructor tries to manage a course they do not own
+        - A student tries to view content of a course they are not enrolled in
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorApiResponse'
+          examples:
+            notEnrolled:
+              summary: Student not enrolled in course
+              value:
+                status: 403
+                message: "Access denied: you are not enrolled in this course"
+                data: null
+            notCourseOwner:
+              summary: Instructor does not own the course
+              value:
+                status: 403
+                message: "Access denied: you are not the instructor of this course"
+                data: null
+
+    NotFound:
+      description: |
+        **404 Not Found** — The requested resource does not exist.
+        Common causes:
+        - Course ID, Assignment ID, or Student ID is incorrect
+        - Department ID provided during registration is invalid
+        - Email not found during login
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorApiResponse'
+          examples:
+            courseNotFound:
+              summary: Course not found
+              value:
+                status: 404
+                message: "Course not found with id: crs_999"
+                data: null
+            assignmentNotFound:
+              summary: Assignment not found
+              value:
+                status: 404
+                message: "Assignment not found with id: asgn_999"
+                data: null
+            studentNotFound:
+              summary: Student not found during login
+              value:
+                status: 404
+                message: "No account found with this email"
+                data: null
+            departmentNotFound:
+              summary: Department ID is invalid
+              value:
+                status: 404
+                message: "Department not found with id: dept_99"
+                data: null
+
+    Conflict:
+      description: |
+        **409 Conflict** — The request conflicts with the current state of the resource.
+        Common causes:
+        - Email is already registered
+        - Student tries to enroll in a course they are already enrolled in
+        - Student tries to submit an assignment they have already submitted
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorApiResponse'
+          examples:
+            emailExists:
+              summary: Email already registered
+              value:
+                status: 409
+                message: "An account with this email already exists"
+                data: null
+            alreadyEnrolled:
+              summary: Already enrolled in course
+              value:
+                status: 409
+                message: "You are already enrolled in this course"
+                data: null
+            alreadySubmitted:
+              summary: Assignment already submitted
+              value:
+                status: 409
+                message: "You have already submitted this assignment"
+                data: null
+
+    InternalServerError:
+      description: |
+        **500 Internal Server Error** — An unexpected error occurred on the server.
+        The client should retry the request after a short delay.
+        If the issue persists, contact the API support team.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorApiResponse'
+          example:
+            status: 500
+            message: "An unexpected error occurred. Please try again later."
+            data: null
