@@ -21,7 +21,20 @@ import lombok.Setter;
 @AllArgsConstructor
 public class AssignmentSubmission {
 
-    @Id
+    public AssignmentSubmission() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	public AssignmentSubmission( Assignment assignment, Student student, String source) {
+		super();
+		
+		this.assignment = assignment;
+		this.student = student;
+		this.source = source;
+	}
+
+	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -43,4 +56,60 @@ public class AssignmentSubmission {
     private ZonedDateTime updatedAt;
 
     private ZonedDateTime deletedAt;
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Assignment getAssignment() {
+		return assignment;
+	}
+
+	public void setAssignment(Assignment assignment) {
+		this.assignment = assignment;
+	}
+
+	public Student getStudent() {
+		return student;
+	}
+
+	public void setStudent(Student student) {
+		this.student = student;
+	}
+
+	public String getSource() {
+		return source;
+	}
+
+	public void setSource(String source) {
+		this.source = source;
+	}
+
+	public ZonedDateTime getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(ZonedDateTime createdAt) {
+		this.createdAt = createdAt;
+	}
+
+	public ZonedDateTime getUpdatedAt() {
+		return updatedAt;
+	}
+
+	public void setUpdatedAt(ZonedDateTime updatedAt) {
+		this.updatedAt = updatedAt;
+	}
+
+	public ZonedDateTime getDeletedAt() {
+		return deletedAt;
+	}
+
+	public void setDeletedAt(ZonedDateTime deletedAt) {
+		this.deletedAt = deletedAt;
+	}
 }

@@ -29,7 +29,21 @@ import lombok.Setter;
 @AllArgsConstructor
 public class Enrollment {
 
-    @Id
+    public Enrollment() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	public Enrollment( Student student, Course course, EnrollmentStatus status) {
+		super();
+		
+		this.student = student;
+		this.course = course;
+		this.status = status;
+		
+	}
+
+	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -55,4 +69,60 @@ public class Enrollment {
     private ZonedDateTime updatedAt;
 
     private ZonedDateTime deletedAt;
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Student getStudent() {
+		return student;
+	}
+
+	public void setStudent(Student student) {
+		this.student = student;
+	}
+
+	public Course getCourse() {
+		return course;
+	}
+
+	public void setCourse(Course course) {
+		this.course = course;
+	}
+
+	public EnrollmentStatus getStatus() {
+		return status;
+	}
+
+	public void setStatus(EnrollmentStatus status) {
+		this.status = status;
+	}
+
+	public ZonedDateTime getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(ZonedDateTime createdAt) {
+		this.createdAt = createdAt;
+	}
+
+	public ZonedDateTime getUpdatedAt() {
+		return updatedAt;
+	}
+
+	public void setUpdatedAt(ZonedDateTime updatedAt) {
+		this.updatedAt = updatedAt;
+	}
+
+	public ZonedDateTime getDeletedAt() {
+		return deletedAt;
+	}
+
+	public void setDeletedAt(ZonedDateTime deletedAt) {
+		this.deletedAt = deletedAt;
+	}
 }

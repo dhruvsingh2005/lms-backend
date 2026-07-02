@@ -19,14 +19,24 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 public class Assignment {
 
-    @Id
+    public Assignment() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	public Assignment( String title, String description, Course course, String source, LocalDate dueDate) {
+		super();
+		
+		this.title = title;
+		this.description = description;
+		this.course = course;
+		this.source = source;
+		this.dueDate = dueDate;
+	}
+
+	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -53,4 +63,76 @@ public class Assignment {
     private ZonedDateTime updatedAt;
 
     private ZonedDateTime deletedAt;
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public Course getCourse() {
+		return course;
+	}
+
+	public void setCourse(Course course) {
+		this.course = course;
+	}
+
+	public String getSource() {
+		return source;
+	}
+
+	public void setSource(String source) {
+		this.source = source;
+	}
+
+	public LocalDate getDueDate() {
+		return dueDate;
+	}
+
+	public void setDueDate(LocalDate dueDate) {
+		this.dueDate = dueDate;
+	}
+
+	public ZonedDateTime getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(ZonedDateTime createdAt) {
+		this.createdAt = createdAt;
+	}
+
+	public ZonedDateTime getUpdatedAt() {
+		return updatedAt;
+	}
+
+	public void setUpdatedAt(ZonedDateTime updatedAt) {
+		this.updatedAt = updatedAt;
+	}
+
+	public ZonedDateTime getDeletedAt() {
+		return deletedAt;
+	}
+
+	public void setDeletedAt(ZonedDateTime deletedAt) {
+		this.deletedAt = deletedAt;
+	}
 }
