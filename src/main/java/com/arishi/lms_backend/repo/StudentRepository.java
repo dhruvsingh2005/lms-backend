@@ -1,4 +1,4 @@
-package com.arishi.lms_backend.repository;
+package com.arishi.lms_backend.repo;
 
 import com.arishi.lms_backend.entity.Student;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -25,7 +25,7 @@ public class StudentDTO {
     private String firstName;
 
     @Size(min=2, max = 50,
-            message = "Lastname cannot exceed 50 characters")
+            message = "Lastname cantain 2 to 50 characters")
     @Pattern(
             regexp = "^[a-zA-Z]+$",message = "lastname must contain only letters")
     private String lastName;
@@ -37,7 +37,11 @@ public class StudentDTO {
     private String password;
 
     @NotBlank(message = "Email is required")
-    @Email(message = "Email must be valid")
+   // @Email(message = "Email must be valid")
+    @Pattern(
+            regexp = "^(?=.{1,254}$)(?=.{1,64}@)(?!.*\\.\\.)(?![.])[A-Za-z0-9_%+-]+(?:\\.[A-Za-z0-9_%+-]+)*@(?:[A-Za-z]+\\.)+[A-Za-z]{2,}$",
+            message = "Invalid email format"
+    )
     private String email;
 
     @NotBlank(message = "Mobile number is required")
