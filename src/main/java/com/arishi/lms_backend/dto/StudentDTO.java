@@ -13,7 +13,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class StudentDTO {
 
-    @Null(message = "Id must not be provided during registration")
     private Long id;
 
     @NotBlank(message = "First name is required")
@@ -42,7 +41,6 @@ public class StudentDTO {
     private String password;
 
     @NotBlank(message = "Email is required")
-   // @Email(message = "Email must be valid")
     @Pattern(
             regexp = "^(?=.{1,254}$)(?=.{1,64}@)(?!.*\\.\\.)(?![.])[A-Za-z0-9_%+-]+(?:\\.[A-Za-z0-9_%+-]+)*@(?:[A-Za-z]+\\.)+[A-Za-z]{2,}$",
             message = "Invalid email format"

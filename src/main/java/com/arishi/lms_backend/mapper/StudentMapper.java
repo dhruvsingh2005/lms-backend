@@ -18,7 +18,7 @@ public class StudentMapper {
         return student;
     }
 
-    public static StudentDTO toResponse(Student student) {
+    public static StudentDTO toStudentDto(Student student) {
 
         return new StudentDTO(
                 student.getId(),
