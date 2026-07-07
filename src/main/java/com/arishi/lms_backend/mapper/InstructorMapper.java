@@ -6,7 +6,7 @@ import com.arishi.lms_backend.entity.Instructor;
 
 public class InstructorMapper {
 
-    public static Instructor toEntity(InstructorDTO dto) {
+    public static Instructor toEntity(InstructorDTO dto, Department department) {
 
         Instructor instructor = new Instructor();
 
@@ -14,7 +14,7 @@ public class InstructorMapper {
         instructor.setLastName(dto.getLastName());
         instructor.setEmail(dto.getEmail());
         instructor.setMobileNumber(dto.getMobileNumber());
-        instructor.setPasswordHash(dto.getPassword());
+        instructor.setDepartment(department);
         instructor.setExperienceInMonths(dto.getExperienceInMonths());
 
         return instructor;

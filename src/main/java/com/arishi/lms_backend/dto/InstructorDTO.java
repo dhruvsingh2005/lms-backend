@@ -61,5 +61,6 @@ public class InstructorDTO {
 
     @NotNull(message = "Experience is required")
     @Min(value = 0, message = "Experience cannot be negative")
+    @Max(value = 600, message = "Experience cannot exceed 600 months")
     private Integer experienceInMonths;
 }

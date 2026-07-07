@@ -9,7 +9,6 @@ import com.arishi.lms_backend.mapper.InstructorMapper;
 import com.arishi.lms_backend.repo.DepartmentRepository;
 import com.arishi.lms_backend.repo.InstructorRepository;
 import com.arishi.lms_backend.service.InstructorService;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -38,10 +37,10 @@ public class InstructorServiceImpl implements InstructorService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Department not found"));
 
-        Instructor instructor = InstructorMapper.toEntity(request);
+        Instructor instructor = InstructorMapper.toEntity(request,department);
 
         instructor.setPasswordHash(passwordEncoder.encode(request.getPassword()));
-        instructor.setDepartment(department);
+       // instructor.setDepartment(department);
 
         Instructor saved = instructorRepository.save(instructor);
 
