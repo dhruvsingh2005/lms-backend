@@ -3,7 +3,9 @@ package com.arishi.lms_backend.exception;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -33,6 +35,8 @@ public class GlobalExceptionHandler {
                 null
         );
     }
+
+
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ApiResponse handleValidationException(
@@ -51,5 +55,32 @@ public class GlobalExceptionHandler {
                 errors,
                 null
         );
+    }
+
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ApiResponse> handleResourceNotFound(
+            ResourceNotFoundException ex) {
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ApiResponse(
+                        HttpStatus.NOT_FOUND.value(),
+                        List.of(ex.getMessage()),
+                        null
+                ));
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ApiResponse> handleDataIntegrityViolation(
+            DataIntegrityViolationException ex) {
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(new ApiResponse(
+                        HttpStatus.CONFLICT.value(),
+                        List.of("Email or Mobile number already exists"),
+                        null
+                ));
     }
 }
