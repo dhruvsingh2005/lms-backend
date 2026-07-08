@@ -23,12 +23,14 @@ public class StudentController {
 
         StudentDTO response = studentService.createStudent(request);
 
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(new ApiResponse(
-                        HttpStatus.CREATED.value(),
-                        List.of("Student created successfully"),
-                        response
-                ));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse(HttpStatus.CREATED.value(), List.of("Student created successfully"), response));
+    }
+
+    @GetMapping("/v1/student/{id}")
+    public ResponseEntity<ApiResponse> getStudentById(@PathVariable Long id) {
+
+        StudentDTO response = studentService.getStudentById(id);
+
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(HttpStatus.OK.value(), List.of("Student fetched successfully"), response));
     }
 }

@@ -6,4 +6,6 @@ public interface StudentService {
 
     StudentDTO createStudent(StudentDTO request);
 
+    StudentDTO getStudentById(Long id);
+
 }
