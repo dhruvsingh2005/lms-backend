@@ -35,7 +35,7 @@ public class Course  extends BaseEntity{
     @Column(nullable = false)
     private BigDecimal price;
 
-    @Lob
+    @Column(columnDefinition = "TEXT")
     private String courseContent;
 
 	
