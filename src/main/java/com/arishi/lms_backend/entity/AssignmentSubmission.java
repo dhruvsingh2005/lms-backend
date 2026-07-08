@@ -3,14 +3,14 @@ package com.arishi.lms_backend.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.Data;
-
+import lombok.EqualsAndHashCode;
 
 @Entity
 @Data
+@EqualsAndHashCode(callSuper = true)
 public class AssignmentSubmission extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -22,7 +22,5 @@ public class AssignmentSubmission extends BaseEntity {
     private Student student;
     
     @Column(nullable = false)
-    private String source;
-
-	
+    private String source;	
 }

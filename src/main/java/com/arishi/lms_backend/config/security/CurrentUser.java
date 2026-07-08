@@ -1,6 +1,8 @@
 package com.arishi.lms_backend.config.security;
 
 import org.springframework.security.core.context.SecurityContextHolder;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
 public class CurrentUser {
 	
@@ -11,7 +13,8 @@ public class CurrentUser {
 	
 	public static String getRole() {
 		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		return ((UserInfo) principal).getRole();
+		UserInfo userInfo = (UserInfo) principal;
+		return userInfo.getRole();
 	}
 	
 	public static UserInfo getUserInfo(Long id, String role) {
@@ -19,22 +22,11 @@ public class CurrentUser {
 	}
 }
 
+@Data
+@AllArgsConstructor
 class UserInfo {
 	
 	private Long id;
 	
-	private String role; 
-	
-	public UserInfo(Long id, String role) {
-		this.id = id;
-		this.role = role;
-	}
-	
-	public Long getId() {
-		return this.id;
-	}
-	
-	public String getRole() {
-		return this.role;
-	}
+	private String role;
 }

@@ -2,6 +2,11 @@ package com.arishi.lms_backend.dto;
 
 import java.util.List;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
 public class ApiResponse {
 
 	private Integer statusCode;
@@ -9,22 +14,4 @@ public class ApiResponse {
 	private List<String> message;
 	
 	private Object data;
-
-	public ApiResponse(Integer statusCode, List<String> message, Object data) {
-		this.statusCode = statusCode;
-		this.message = message;
-		this.data = data;
-	}
-
-	public Integer getstatusCode() {
-		return statusCode;
-	}
-
-	public List<String> getMessage() {
-		return message;
-	}
-
-	public Object getData() {
-		return data;
-	}
 }

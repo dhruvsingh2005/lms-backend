@@ -1,4 +1,4 @@
-package com.arishi.lms_backend.config.security;
+					package com.arishi.lms_backend.config.security;
 
 import java.io.IOException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
