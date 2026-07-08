@@ -33,31 +33,15 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void login(LoginRequest request, String role, HttpServletResponse response) {
 
-        String normalizedRole = normalizeRole(role);
-        String normalizedEmail = normalizeEmail(request.getEmail());
-
-        LoginUser loginUser = getLoginUser(request.getEmail(), normalizedRole);
+        LoginUser loginUser = getLoginUser(request.getEmail(), role);
 
         validatePassword(request.getPassword(), loginUser.passwordHash());
 
-        String accessToken = authUtils.getAccessToken(loginUser.id(), normalizedRole);
+        String accessToken = authUtils.getAccessToken(loginUser.id(), role);
 
         ResponseCookie accessTokenCookie = CookieUtils.createAccessTokenCookie(accessToken);
 
         response.addHeader(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
-    }
-
-    private String normalizeRole(String role) {
-
-        if (role == null || role.isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Role is required");
-        }
-
-        return role.trim().toLowerCase();
-    }
-
-    private String normalizeEmail(String email) {
-        return email.trim().toLowerCase();
     }
 
     private LoginUser getLoginUser(String email, String role) {

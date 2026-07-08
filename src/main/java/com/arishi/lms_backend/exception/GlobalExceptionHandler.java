@@ -11,6 +11,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -82,5 +83,19 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse> handleAccessDeniedException(AccessDeniedException ex) {
 
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse(HttpStatus.FORBIDDEN.value(), List.of("You do not have permission to access this resource."), null));
+    }
+
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ApiResponse> handleMissingRequestParameter(
+            MissingServletRequestParameterException ex) {
+
+        return ResponseEntity.badRequest().body(
+                new ApiResponse(
+                        HttpStatus.BAD_REQUEST.value(),
+                        List.of(ex.getParameterName() + " is required"),
+                        null
+                )
+        );
     }
 }
