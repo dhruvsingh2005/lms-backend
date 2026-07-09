@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.arishi.lms_backend.dto.CourseDTO;
 import com.arishi.lms_backend.service.CourseService;
-
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -57,7 +56,16 @@ public class InstructorController {
 	                courses
 	        );
 	    }
-	    return ResponseEntity.ok(response);
-	}
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse(HttpStatus.CREATED.value(), List.of("Instructor created successfully"), response));
+    }
 
+    @GetMapping("/v1/Instructor/profile")
+    public ResponseEntity<ApiResponse> getInstructorProfile() {
+
+        InstructorDTO instructorDTO = instructorService.getInstructorProfile();
+
+        ApiResponse response = new ApiResponse(200, List.of("Instructor profile fetched successfully"), instructorDTO);
+
+        return ResponseEntity.ok(response);
+    }
 }

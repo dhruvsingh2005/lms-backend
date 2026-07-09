@@ -33,4 +33,14 @@ public class StudentController {
 
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(HttpStatus.OK.value(), List.of("Student fetched successfully"), response));
     }
+
+    @GetMapping("/v1/student/profile")
+    public ResponseEntity<ApiResponse> getStudentProfile() {
+
+        StudentDTO student = studentService.getStudentProfile();
+
+        ApiResponse response = new ApiResponse(200, List.of("Student profile fetched successfully"), student);
+
+        return ResponseEntity.ok(response);
+    }
 }

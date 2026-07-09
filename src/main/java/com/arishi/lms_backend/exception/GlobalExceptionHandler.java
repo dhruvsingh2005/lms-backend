@@ -14,6 +14,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import com.arishi.lms_backend.dto.ApiResponse;
+import com.arishi.lms_backend.exception.customException.BadRequestException;
+import com.arishi.lms_backend.exception.customException.DuplicateResourceException;
+import com.arishi.lms_backend.exception.customException.ForbiddenException;
+import com.arishi.lms_backend.exception.customException.ResourceNotFoundException;
+
 import io.jsonwebtoken.JwtException;
 import org.springframework.web.server.ResponseStatusException;
 

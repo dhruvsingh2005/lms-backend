@@ -1,4 +1,4 @@
-package com.arishi.lms_backend.exception;
+package com.arishi.lms_backend.exception.customException;
 
 public class BadRequestException extends RuntimeException {
 
