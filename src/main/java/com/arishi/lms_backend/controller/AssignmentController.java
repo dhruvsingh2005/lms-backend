@@ -1,5 +1,7 @@
 package com.arishi.lms_backend.controller;
 
+import java.util.List;
+
 import org.springframework.core.io.Resource;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
@@ -11,7 +13,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.arishi.lms_backend.dto.ApiResponse;
 import com.arishi.lms_backend.dto.AssignmentDto;
 import com.arishi.lms_backend.service.AssignmentService;
 import com.arishi.lms_backend.validator.PdfValidator;
@@ -25,11 +30,12 @@ public class AssignmentController {
 	
 	private final AssignmentService assignmentService;
 	
+	@ResponseStatus(HttpStatus.CREATED)
 	@PostMapping(path = "/v1/course/{courseId}/assignment", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity<AssignmentDto> createAssignment(@ModelAttribute @Valid AssignmentDto assignmentDto, @PathVariable Long courseId) {
-		PdfValidator.validatePDF(assignmentDto.getAssignmentSource(), null);
+	public ApiResponse createAssignment(@ModelAttribute @Valid AssignmentDto assignmentDto, @PathVariable Long courseId) {
+		PdfValidator.validatePDF(assignmentDto.getAssignmentSource());
 		AssignmentDto savedAssignment = assignmentService.createAssignment(assignmentDto, courseId);
-		return ResponseEntity.status(HttpStatus.CREATED).body(savedAssignment);
+		return new ApiResponse(HttpStatus.CREATED.value(), List.of("Assignment created successfully"), savedAssignment);
 	}
 
 	@GetMapping(path = "/v1/assignment/{assignmentId}/pdf", produces = MediaType.APPLICATION_PDF_VALUE)

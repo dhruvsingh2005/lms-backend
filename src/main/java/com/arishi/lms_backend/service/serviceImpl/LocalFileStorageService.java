@@ -40,7 +40,7 @@ public class LocalFileStorageService implements FileStorageService {
 	public String storeAssignmentPdf(MultipartFile file, Long courseId) {
 		String storageKey = "course-" + courseId + "/" + UUID.randomUUID() + ".pdf";
 		Path target = resolveStorageKey(storageKey);
-
+		
 		try {
 			Files.createDirectories(target.getParent());
 			file.transferTo(target);

@@ -2,11 +2,10 @@ package com.arishi.lms_backend.validator;
 
 import org.springframework.web.multipart.MultipartFile;
 import com.arishi.lms_backend.exception.customException.InvalidPdfException;
-import java.util.List;
 
 public class PdfValidator {
 	
-	public static void validatePDF(MultipartFile file, List<String> errors) {
+	public static void validatePDF(MultipartFile file) {
         // Check if file is empty
         if (file.isEmpty()) {
             throw new InvalidPdfException("Assignment File is empty");

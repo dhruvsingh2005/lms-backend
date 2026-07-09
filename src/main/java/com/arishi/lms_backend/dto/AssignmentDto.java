@@ -24,7 +24,7 @@ public class AssignmentDto {
 	private String title;
 	
 	@NotBlank(message = "Description cannot be empty")
-    @Size(min = 1, max = 500, message = "Description must be between 1 and 500 characters")
+    @Size(min = 1, max = 200, message = "Description must be between 1 and 200 characters")
 	private String description;
 	
 	@NotNull(message = "Due date cannot be empty")
