@@ -1,8 +1,6 @@
 package com.arishi.lms_backend.exception;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,13 +20,13 @@ import org.springframework.web.server.ResponseStatusException;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(JwtException.class)
     public ApiResponse handleJwtException(JwtException jwtException) {
         return new ApiResponse(HttpStatus.UNAUTHORIZED.value(), List.of("Unauthorized"), null);
 
     }
-
     @ResponseStatus(HttpStatus.CONFLICT)
     @ExceptionHandler(DuplicateResourceException.class)
     public ApiResponse handleDuplicateResourceException(DuplicateResourceException exception) {
@@ -42,15 +40,12 @@ public class GlobalExceptionHandler {
     public ApiResponse handleValidationException(MethodArgumentNotValidException ex) {
 
         List<String> errors = new ArrayList<>();
-
         for (FieldError error : ex.getBindingResult().getFieldErrors()) {
-            errors.add(error.getField() + ": " + error.getDefaultMessage());
-        }
-
+            errors.add(error.getField() + ": " + error.getDefaultMessage()); }
         return new ApiResponse(HttpStatus.BAD_REQUEST.value(), errors, null);
+
     }
-
-
+    
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiResponse> handleResourceNotFound(ResourceNotFoundException ex) {
 
@@ -97,5 +92,28 @@ public class GlobalExceptionHandler {
                         null
                 )
         );
+    }
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(BadRequestException.class)
+    public ApiResponse handleBadRequestException(
+            BadRequestException ex) {
+
+        return new ApiResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                List.of(ex.getMessage()),
+                null
+        );
+    }
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ExceptionHandler(ForbiddenException.class)
+    public ApiResponse handleForbiddenException(
+            ForbiddenException ex) {
+
+        return new ApiResponse(
+                HttpStatus.FORBIDDEN.value(),
+                List.of(ex.getMessage()),
+                null
+        );
+
     }
 }

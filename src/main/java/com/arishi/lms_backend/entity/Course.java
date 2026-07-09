@@ -23,7 +23,7 @@ public class Course  extends BaseEntity{
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "instructor_id", nullable = false)
+    @JoinColumn(name = "instructor_id", nullable = true)
     private Instructor instructor;
 
     @Column(nullable = false)
@@ -34,6 +34,7 @@ public class Course  extends BaseEntity{
 
     @Column(nullable = false)
     private BigDecimal price;
+
 
     @Column(columnDefinition = "TEXT")
     private String courseContent;
