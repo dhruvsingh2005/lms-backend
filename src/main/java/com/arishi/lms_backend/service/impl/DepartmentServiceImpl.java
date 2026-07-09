@@ -2,7 +2,7 @@ package com.arishi.lms_backend.service.impl;
 
 import com.arishi.lms_backend.dto.DepartmentDTO;
 import com.arishi.lms_backend.entity.Department;
-import com.arishi.lms_backend.exception.DuplicateResourceException;
+import com.arishi.lms_backend.exception.customException.DuplicateResourceException;
 import com.arishi.lms_backend.mapper.DepartmentMapper;
 import com.arishi.lms_backend.repo.DepartmentRepository;
 import com.arishi.lms_backend.service.DepartmentService;

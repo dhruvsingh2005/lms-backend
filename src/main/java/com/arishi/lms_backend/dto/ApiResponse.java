@@ -16,7 +16,7 @@ public class ApiResponse {
 		this.data = data;
 	}
 
-	public Integer getstatusCode() {
+	public Integer getStatusCode() {
 		return statusCode;
 	}
 

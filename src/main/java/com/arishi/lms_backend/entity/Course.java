@@ -15,7 +15,6 @@ import lombok.Data;
 @Data
 public class Course  extends BaseEntity{
 
-
     @Column(nullable = false, length= 50)
     private String title;
 
@@ -37,6 +36,4 @@ public class Course  extends BaseEntity{
 
     @Column(columnDefinition = "TEXT")
     private String courseContent;
-
-	
 }
