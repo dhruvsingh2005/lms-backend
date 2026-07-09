@@ -35,13 +35,12 @@ public class CourseServiceImpl implements CourseService {
 		 String role = CurrentUser.getRole();
 		  
 		  if (!"INSTRUCTOR".equalsIgnoreCase(role)) {
-	            throw new ForbiddenException(
-	                    "Access denied.");
+	            throw new ForbiddenException("Access denied.");
 	        }
 		Instructor instructor = instructorRepository.findById(instructorId).orElseThrow(
 				() -> new ResourceNotFoundException("Instructor not found with id : " + instructorId));
 
-		if (courseRepository.existsByTitleIgnoreCaseAndInstructorId(request.getTitle(), instructorId)) {
+		if (courseRepository.existsByTitleIgnoreCaseAndInstructorIdAndDeletedAtIsNull(request.getTitle(), instructorId)) {
 			throw new DuplicateResourceException(" Same Course already exists for this instructor");
 		}
 		
