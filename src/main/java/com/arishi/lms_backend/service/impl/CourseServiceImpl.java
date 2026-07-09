@@ -32,6 +32,12 @@ public class CourseServiceImpl implements CourseService {
 	public CourseDTO createCourse(CourseDTO request) {
 
 		Long instructorId = CurrentUser.getId();
+		 String role = CurrentUser.getRole();
+		  
+		  if (!"INSTRUCTOR".equalsIgnoreCase(role)) {
+	            throw new ForbiddenException(
+	                    "Access denied.");
+	        }
 		Instructor instructor = instructorRepository.findById(instructorId).orElseThrow(
 				() -> new ResourceNotFoundException("Instructor not found with id : " + instructorId));
 
@@ -40,6 +46,7 @@ public class CourseServiceImpl implements CourseService {
 		}
 		
 		Course course = CourseMapper.toEntity(request, instructor);
+		
 		Course savedCourse = courseRepository.save(course);
 		return CourseMapper.toCourseDto(savedCourse);
 	}
@@ -52,7 +59,7 @@ public class CourseServiceImpl implements CourseService {
         switch (status.toLowerCase()) {
 
             case "available":
-                courses = courseRepository.findByEndDateGreaterThanEqual(today);
+                courses = courseRepository.findByEndDateGreaterThanEqualAndDeletedAtIsNull(today);
                 break;
 
            case "expired":
@@ -60,59 +67,41 @@ public class CourseServiceImpl implements CourseService {
                      "Students are not allowed to view expired courses.");
 
             default:
-                throw new BadRequestException(
-                        "Invalid status. Allowed value is 'available'.");
+                throw new BadRequestException( "Invalid status. Allowed value is 'available'.");
         }
-        return courses.stream()
-                .map(CourseMapper::toCourseDto)
-                .toList();
+        return courses.stream().map(CourseMapper::toCourseDto).toList();
     }
-    
     @Override
     public List<CourseDTO> getInstructorCourses(String status) {
     	  String role = CurrentUser.getRole();
 
         Long instructorId = CurrentUser.getId();
         if (!"INSTRUCTOR".equalsIgnoreCase(role)) {
-            throw new ForbiddenException(
-                    "Access denied.");
+            throw new ForbiddenException( "Access denied.");
         }
 
         LocalDate today = LocalDate.now();
-
         List<Course> courses;
 
         switch (status.toLowerCase()) {
-
             case "available":
-                courses = courseRepository
-                        .findByInstructorIdAndEndDateGreaterThanEqual(
-                                instructorId,
-                                today );
+                courses = courseRepository .findByInstructorIdAndEndDateGreaterThanEqualAndDeletedAtIsNull(instructorId, today );
                 break;
 
             case "expired":
-                courses = courseRepository
-                        .findByInstructorIdAndEndDateLessThan(
-                                instructorId,
-                                today);
+                courses = courseRepository  .findByInstructorIdAndEndDateLessThanAndDeletedAtIsNull(instructorId, today);
                 break;
             default:
-                throw new BadRequestException(
-                        "Invalid status. Allowed values are available and expired.");
+                throw new BadRequestException( "Invalid status. Allowed values are available and expired.");
         }
-        return courses.stream()
-                .map(CourseMapper::toCourseDto)
-                .toList();
+        return courses.stream().map(CourseMapper::toCourseDto) .toList();
     }
-    
     @Override
     public CourseDTO getCourseById(Long courseId) {
 
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Course not found with id : " + courseId  ));
+                        new ResourceNotFoundException( "Course not found with id : " + courseId  ));
         return CourseMapper.toCourseDto(course);
     }
 }

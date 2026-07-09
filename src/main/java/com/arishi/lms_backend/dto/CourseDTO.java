@@ -21,16 +21,13 @@ public class CourseDTO {
 	private Long id;
 
 	@NotBlank(message = "Course title is required.")
-
 	@Size(min = 5, max = 50, message = "Course title must be between 5 and 50 characters.")
 	private String title;
 
 	@NotBlank(message = "Course description is required.")
-	@Size(min = 20, max = 1000, message = "Description must be between 20 and 1000 characters.")
+	@Size(min = 20, max = 500, message = "Description must be between 20 and 1000 characters.")
 	private String description;
 
-	// @NotNull(message = "Instructor Id is required.")
-	// @Positive(message = "Instructor Id must be greater than 0.")
 	private Long instructorId;
 
 	@NotNull(message = "Start date is required.")

@@ -12,19 +12,27 @@ import com.arishi.lms_backend.entity.Instructor;
 public interface CourseRepository extends JpaRepository<Course, Long> {
 	boolean existsByTitleIgnoreCaseAndInstructorId(String title, Long instructorId);
 	
-	  List<Course> findByEndDateGreaterThanEqual(LocalDate today);
+	// Student
+	List<Course> findByEndDateGreaterThanEqualAndDeletedAtIsNull(
+	        LocalDate today
+	);
 
-	    List<Course> findByEndDateLessThan(LocalDate today);
+	List<Course> findByEndDateLessThanAndDeletedAtIsNull(
+	        LocalDate today
+	);
 
-		 // Instructor
-	    List<Course> findByInstructorIdAndEndDateGreaterThanEqual(
-	            Long instructorId,
-	            LocalDate today
-	    );
-	    List<Course> findByInstructorIdAndEndDateLessThan(
-	            Long instructorId,
-	            LocalDate today
-	    );
-	    Optional<Course> findById(Long id);
+	// Instructor
+	List<Course> findByInstructorIdAndEndDateGreaterThanEqualAndDeletedAtIsNull(
+	        Long instructorId,
+	        LocalDate today
+	);
+
+	List<Course> findByInstructorIdAndEndDateLessThanAndDeletedAtIsNull(
+	        Long instructorId,
+	        LocalDate today
+	);
+
+	// Get Course By Id
+	Optional<Course> findByIdAndDeletedAtIsNull(Long id);
 
 }

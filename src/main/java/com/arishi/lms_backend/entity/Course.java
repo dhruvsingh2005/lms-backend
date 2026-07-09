@@ -15,7 +15,6 @@ import lombok.Data;
 @Data
 public class Course  extends BaseEntity{
 
-
     @Column(nullable = false, length= 50)
     private String title;
 
@@ -23,7 +22,7 @@ public class Course  extends BaseEntity{
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "instructor_id", nullable = true)
+    @JoinColumn(name = "instructor_id", nullable = false)
     private Instructor instructor;
 
     @Column(nullable = false)
@@ -35,9 +34,6 @@ public class Course  extends BaseEntity{
     @Column(nullable = false)
     private BigDecimal price;
 
-
     @Column(columnDefinition = "TEXT")
     private String courseContent;
-
-	
 }
