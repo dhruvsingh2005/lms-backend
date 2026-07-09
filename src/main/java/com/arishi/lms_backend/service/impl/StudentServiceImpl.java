@@ -3,14 +3,13 @@ package com.arishi.lms_backend.service.impl;
 import com.arishi.lms_backend.config.security.CurrentUser;
 import com.arishi.lms_backend.dto.StudentDTO;
 import com.arishi.lms_backend.entity.Student;
-import com.arishi.lms_backend.exception.DuplicateResourceException;
-import com.arishi.lms_backend.exception.ResourceNotFoundException;
+import com.arishi.lms_backend.exception.customException.DuplicateResourceException;
+import com.arishi.lms_backend.exception.customException.ResourceNotFoundException;
 import com.arishi.lms_backend.mapper.StudentMapper;
 import com.arishi.lms_backend.repo.StudentRepository;
 import com.arishi.lms_backend.service.StudentService;
 import lombok.AllArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -25,12 +24,10 @@ public class StudentServiceImpl implements StudentService {
     public StudentDTO createStudent(StudentDTO request) {
 
         if (studentRepository.existsByEmailAndDeletedAtIsNull(request.getEmail())) {
-
             throw new DuplicateResourceException("Email already exists");
         }
 
         if (studentRepository.existsByMobileNumberAndDeletedAtIsNull(request.getMobileNumber())) {
-
             throw new DuplicateResourceException("Mobile number already exists");
         }
         Student student = StudentMapper.toEntity(request);
@@ -58,7 +55,6 @@ public class StudentServiceImpl implements StudentService {
         }
 
         Student student = studentRepository.findByIdAndDeletedAtIsNull(studentId).orElseThrow(() -> new ResourceNotFoundException("Student not found"));
-
         return StudentMapper.toStudentDto(student);
     }
 
