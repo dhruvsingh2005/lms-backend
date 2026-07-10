@@ -1,10 +1,10 @@
 package com.arishi.lms_backend.exception.customException;
 
-public class ResourceNotFoundException extends RuntimeException {
-	
+public class BadRequestException extends RuntimeException {
+
 	private static final long serialVersionUID = 1L;
 
-	public ResourceNotFoundException(String message) {
+	public BadRequestException(String message) {
         super(message);
     }
 }

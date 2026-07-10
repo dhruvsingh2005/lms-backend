@@ -23,4 +23,5 @@ public class AssignmentSubmission extends BaseEntity {
     
     @Column(nullable = false)
     private String source;	
+
 }

@@ -9,5 +9,5 @@ import com.arishi.lms_backend.enums.EnrollmentStatus;
 @Repository
 public interface EnrollmentRepo extends JpaRepository<Enrollment, Long> {
 
-	boolean existsByStudentIdAndCourseIdAndStatus(Long studentId, Long courseId, EnrollmentStatus status);
+	boolean existsByStudentIdAndCourseIdAndStatusAndDeletedAtIsNull(Long studentId, Long courseId, EnrollmentStatus status);
 }

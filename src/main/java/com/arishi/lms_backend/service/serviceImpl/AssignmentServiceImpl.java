@@ -44,7 +44,7 @@ public class AssignmentServiceImpl implements AssignmentService {
 			throw new AccessDeniedException("Unauthorized");
 		}
 		
-		Optional<Course> courseOptional = courseRepo.findByIdAndInstructorId(courseId, CurrentUser.getId());
+		Optional<Course> courseOptional = courseRepo.findByIdAndInstructorIdAndDeletedAtIsNull(courseId, CurrentUser.getId());
 
 		if (courseOptional.isEmpty()) {
 			throw new EntityNotFoundException("Course not found");
@@ -59,7 +59,7 @@ public class AssignmentServiceImpl implements AssignmentService {
 			throw new InvalidAssignmentDateException("Assignment due date cannot be greater than course end date");
 		}
 		
-		if (assignmentRepo.existsByTitleAndCourseIdAndDueDateGreaterThanEqual(assignmentDto.getTitle(), courseId, assignmentDto.getDueDate())) {
+		if (assignmentRepo.existsByTitleAndCourseIdAndDeletedAtIsNullAndDueDateGreaterThanEqual(assignmentDto.getTitle(), courseId, assignmentDto.getDueDate())) {
 			throw new EntityExistsException("Active assignment with same name, already exists");
 		}
 		
@@ -94,7 +94,7 @@ public class AssignmentServiceImpl implements AssignmentService {
 		}
 
 		if ("Student".equalsIgnoreCase(currentRole)) {
-			return enrollmentRepo.existsByStudentIdAndCourseIdAndStatus(currentUserId, courseId, EnrollmentStatus.APPROVED);
+			return enrollmentRepo.existsByStudentIdAndCourseIdAndStatusAndDeletedAtIsNull(currentUserId, courseId, EnrollmentStatus.APPROVED);
 		}
 		return false;
 	}

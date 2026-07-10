@@ -6,5 +6,5 @@ import com.arishi.lms_backend.entity.Assignment;
 
 public interface AssignmentRepo extends JpaRepository<Assignment, Long>{
 	
-	Boolean existsByTitleAndCourseIdAndDueDateGreaterThanEqual(String title, Long courseId, LocalDate dueDate);;
+	Boolean existsByTitleAndCourseIdAndDeletedAtIsNullAndDueDateGreaterThanEqual(String title, Long courseId, LocalDate dueDate);;
 }

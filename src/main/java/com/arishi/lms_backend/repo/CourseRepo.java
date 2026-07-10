@@ -9,5 +9,5 @@ import com.arishi.lms_backend.entity.Course;
 @Repository
 public interface CourseRepo extends JpaRepository<Course, Long> {
 	
-	Optional<Course> findByIdAndInstructorId(Long id, Long instructorId);
+	Optional<Course> findByIdAndInstructorIdAndDeletedAtIsNull(Long id, Long instructorId);
 }

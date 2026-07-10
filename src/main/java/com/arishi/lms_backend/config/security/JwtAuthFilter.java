@@ -44,7 +44,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     Authentication authentication = new UsernamePasswordAuthenticationToken(currentUser, null, null);
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 } catch (JwtException jwtException) {
-
                     SecurityContextHolder.clearContext();
                     handlerExceptionResolver.resolveException(request, response, null, jwtException);
                     // Return here to make sure that request will not go to below method, because response will already be sent
