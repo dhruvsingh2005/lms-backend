@@ -10,7 +10,6 @@ import com.arishi.lms_backend.mapper.StudentMapper;
 import com.arishi.lms_backend.repo.StudentRepository;
 import com.arishi.lms_backend.service.StudentService;
 import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -90,6 +89,5 @@ public class StudentServiceImpl implements StudentService {
         Student updatedStudent = studentRepository.save(student);
         return StudentMapper.toUpdateResponse(updatedStudent);
     }
-
 
 }
