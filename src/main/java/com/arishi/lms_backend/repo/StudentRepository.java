@@ -1,6 +1,8 @@
 package com.arishi.lms_backend.repo;
 
 import com.arishi.lms_backend.entity.Student;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
@@ -14,4 +16,5 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
     Optional<Student> findByEmailAndDeletedAtIsNull(String email);
 
     Optional<Student> findByIdAndDeletedAtIsNull(Long id);
+
 }

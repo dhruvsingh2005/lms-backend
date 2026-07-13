@@ -2,6 +2,7 @@ package com.arishi.lms_backend.controller;
 
 import com.arishi.lms_backend.dto.ApiResponse;
 import com.arishi.lms_backend.dto.StudentDTO;
+import com.arishi.lms_backend.dto.StudentUpadateProDTO;
 import com.arishi.lms_backend.service.StudentService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -43,4 +44,13 @@ public class StudentController {
 
         return ResponseEntity.ok(response);
     }
+
+    @PutMapping("/v1/student/update")
+    public ResponseEntity<ApiResponse> updateStudentProfile(@Valid @RequestBody StudentUpadateProDTO request) {
+
+        StudentUpadateProDTO response = studentService.updateStudentProfile(request);
+
+        return ResponseEntity.ok(new ApiResponse(HttpStatus.OK.value(), List.of("Student updated successfully"), response));
+    }
+
 }
