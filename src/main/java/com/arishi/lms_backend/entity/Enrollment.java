@@ -1,12 +1,6 @@
 package com.arishi.lms_backend.entity;
 
-import java.time.ZonedDateTime;
-
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
 import com.arishi.lms_backend.enums.EnrollmentStatus;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -15,9 +9,11 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Entity
 @Data
+@EqualsAndHashCode(callSuper = true)
 public class Enrollment extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -31,7 +27,5 @@ public class Enrollment extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private EnrollmentStatus status = EnrollmentStatus.PENDING;
-
-
 
 }

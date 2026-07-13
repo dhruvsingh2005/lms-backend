@@ -7,9 +7,11 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Entity
 @Data
+@EqualsAndHashCode(callSuper = true)
 public class Assignment extends BaseEntity {
 
 	@Column(nullable = false, length = 50)
@@ -27,5 +29,4 @@ public class Assignment extends BaseEntity {
 
 	@Column(nullable = false)
 	private LocalDate dueDate;
-
 }

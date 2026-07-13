@@ -1,7 +1,6 @@
 package com.arishi.lms_backend.config.security;
 
 import java.io.IOException;
-
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -51,11 +50,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     return;
                 }
             } else {
-
-                handlerExceptionResolver.resolveException(request, response, null, new AuthenticationCredentialsNotFoundException("Access token is missing"));
+                handlerExceptionResolver.resolveException(request, response, null, new AuthenticationCredentialsNotFoundException("Unauthorized"));
                 return;
             }
-
         }
 
         filterChain.doFilter(request, response);

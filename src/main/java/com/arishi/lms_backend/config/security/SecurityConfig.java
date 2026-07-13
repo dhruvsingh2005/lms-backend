@@ -15,38 +15,42 @@ import org.springframework.security.authentication.AuthenticationProvider;
 @Configuration
 public class SecurityConfig {
 
-    private final JwtAuthFilter jwtAuthFilter;
+	private final JwtAuthFilter jwtAuthFilter;
 
-    @Bean
-    public SecurityFilterChain customSecurityFilterChain(HttpSecurity httpSecurity) throws Exception {
+	@Bean
+	public SecurityFilterChain customSecurityFilterChain(HttpSecurity httpSecurity) throws Exception {
 
-        httpSecurity.csrf(csrf -> csrf.disable()).httpBasic(basic -> basic.disable()).formLogin(form -> form.disable()).sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)).addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+		httpSecurity
+		.csrf(csrf -> csrf.disable()).httpBasic(basic -> basic.disable()).formLogin(form -> form.disable())
+				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+				.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
-        httpSecurity.authorizeHttpRequests(auth -> auth.requestMatchers("/api/public/**").permitAll().anyRequest().authenticated());
-        return httpSecurity.build();
-    }
+		httpSecurity.authorizeHttpRequests(
+				auth -> auth.requestMatchers("/api/public/**").permitAll().anyRequest().authenticated());
+		return httpSecurity.build();
+	}
 
-    @Bean
-    public PasswordEncoder getPasswordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+	@Bean
+	public PasswordEncoder getPasswordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
 
-    @Bean
-    AuthenticationProvider authenticationProvider() {
-        return new AuthenticationProvider() {
-            @Override
-            public boolean supports(Class<?> authentication) {
-                return true;
-            }
+	@Bean
+	AuthenticationProvider authenticationProvider() {
+		return new AuthenticationProvider() {
+			@Override
+			public boolean supports(Class<?> authentication) {
+				return true;
+			}
 
-            @Override
-            public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-                return null;
-            }
-        };
-    }
+			@Override
+			public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+				return null;
+			}
+		};
+	}
 
-    public SecurityConfig(JwtAuthFilter jwtAuthFilter) {
-        this.jwtAuthFilter = jwtAuthFilter;
-    }
+	public SecurityConfig(JwtAuthFilter jwtAuthFilter) {
+		this.jwtAuthFilter = jwtAuthFilter;
+	}
 }

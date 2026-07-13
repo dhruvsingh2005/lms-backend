@@ -1,7 +1,10 @@
 package com.arishi.lms_backend.exception.customException;
 
 public class ResourceNotFoundException extends RuntimeException {
-    public ResourceNotFoundException(String message) {
+	
+	private static final long serialVersionUID = 1L;
+
+	public ResourceNotFoundException(String message) {
         super(message);
     }
 }
