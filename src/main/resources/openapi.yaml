@@ -650,7 +650,7 @@ paths:
       summary: Create a new Assignment
       description: |
         Creates a new assignment for a course. Only the course instructor can create assignments.
-        `assignmentSource` must be a publicly accessible URL (e.g., PDF link, Google Doc).
+        `assignmentSource` must be a PDF file uploaded as multipart form data.
         `dueDate` must be a future date and ideally within the course `endDate`.
       operationId: createAssignment
       security:
@@ -660,15 +660,14 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
               $ref: '#/components/schemas/CreateAssignmentRequest'
             example:
-              courseId: "crs_001"
               title: "Assignment 1 - Build a REST API"
               description: "Create a fully functional REST API using Node.js and Express."
               dueDate: "2024-09-15"
-              assignmentSource: "https://docs.google.com/document/d/example"
+              assignmentSource: "assignment.pdf"
       responses:
         '201':
           description: Assignment created successfully.
@@ -685,9 +684,38 @@ paths:
                   title: "Assignment 1 - Build a REST API"
                   description: "Create a fully functional REST API using Node.js and Express."
                   dueDate: "2024-09-15"
-                  assignmentSource: "https://docs.google.com/document/d/example"
+                  assignmentUrl: "/api/v1/assignment/1/pdf"
         '400':
           $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /v1/assignment/{assignmentId}/pdf:
+    get:
+      tags:
+        - Assignments
+      summary: View Assignment PDF
+      description: |
+        Streams the stored assignment PDF inline. Only the course instructor or approved enrolled students can access it.
+      operationId: getAssignmentPdf
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/assignmentId'
+      responses:
+        '200':
+          description: Assignment PDF fetched successfully.
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
@@ -864,7 +892,7 @@ paths:
                     title: "Assignment 1 - Build a REST API"
                     description: "Create a fully functional REST API using Node.js and Express."
                     dueDate: "2024-09-15"
-                    assignmentSource: "https://docs.google.com/document/d/example"
+                    assignmentUrl: "/api/v1/assignment/1/pdf"
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
@@ -882,7 +910,7 @@ paths:
       description: |
         Returns a list of all assignments created for a specific course.
         Only the course instructor can access this endpoint.
-        Each item includes `id`, `title`, and `assignmentSource` (link).
+        Each item includes `id`, `title`, and `assignmentUrl` (link).
       operationId: getInstructorCourseAssignments
       security:
         - cookieAuth: []
@@ -910,7 +938,7 @@ paths:
                 data:
                   - id: "asgn_001"
                     title: "Assignment 1 - Build a REST API"
-                    assignmentSource: "https://docs.google.com/document/d/example"
+                    assignmentUrl: "/api/v1/assignment/1/pdf"
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
@@ -1174,9 +1202,8 @@ components:
           example: "2024-09-15"
         assignmentSource:
           type: string
-          format: uri
-          description: URL to the assignment document/resource.
-          example: "https://docs.google.com/document/d/example"
+          format: binary
+          description: PDF file for the assignment.
 
     SubmitAssignmentRequest:
       type: object
@@ -1389,10 +1416,10 @@ components:
           type: string
           format: date
           example: "2024-09-15"
-        assignmentSource:
+        assignmentUrl:
           type: string
           format: uri
-          example: "https://docs.google.com/document/d/example"
+          example: "/api/v1/assignment/1/pdf"
 
     AssignmentDetailData:
       type: object

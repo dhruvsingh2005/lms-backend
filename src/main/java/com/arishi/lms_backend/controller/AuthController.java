@@ -22,7 +22,7 @@ public class AuthController {
 
     @PostMapping("/public/v1/auth/login")
     public ResponseEntity<ApiResponse> login(@RequestParam(required = true) String role, @Valid @RequestBody LoginRequest request, HttpServletResponse response) {
-        authService.login(request, role, response);
+    	authService.login(request, role, response);
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(HttpStatus.OK.value(), List.of("Login successful"), null));
     }
 }

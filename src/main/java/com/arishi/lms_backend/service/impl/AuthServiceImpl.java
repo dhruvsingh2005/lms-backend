@@ -38,7 +38,7 @@ public class AuthServiceImpl implements AuthService {
         validatePassword(request.getPassword(), loginUser.passwordHash());
 
         String accessToken = authUtils.getAccessToken(loginUser.id(), role);
-
+        
         ResponseCookie accessTokenCookie = CookieUtils.createAccessTokenCookie(accessToken);
 
         response.addHeader(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
