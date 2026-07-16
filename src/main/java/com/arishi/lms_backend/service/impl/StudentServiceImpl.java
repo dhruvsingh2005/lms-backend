@@ -2,7 +2,7 @@ package com.arishi.lms_backend.service.impl;
 
 import com.arishi.lms_backend.config.security.CurrentUser;
 import com.arishi.lms_backend.dto.StudentDTO;
-import com.arishi.lms_backend.dto.StudentUpadateProDTO;
+import com.arishi.lms_backend.dto.StudentUpdateProfileDTO;
 import com.arishi.lms_backend.entity.Student;
 import com.arishi.lms_backend.exception.customException.DuplicateResourceException;
 import com.arishi.lms_backend.exception.customException.ResourceNotFoundException;
@@ -63,28 +63,28 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     @Transactional
-    public StudentUpadateProDTO updateStudentProfile(StudentUpadateProDTO request) {
+    public StudentUpdateProfileDTO updateStudentProfile(StudentUpdateProfileDTO request) {
 
         Long studentId = CurrentUser.getId();
 
         Student student = studentRepository.findByIdAndDeletedAtIsNull(studentId).orElseThrow(() -> new ResourceNotFoundException("Student not found"));
 
+        boolean emailChanged = !student.getEmail().equalsIgnoreCase(request.getEmail());
 
-        if (!student.getEmail().equalsIgnoreCase(request.getEmail()) && studentRepository.existsByEmailAndDeletedAtIsNull(request.getEmail())) {
-
+        if (emailChanged && studentRepository.existsByEmailAndDeletedAtIsNull(request.getEmail())) {
             throw new DuplicateResourceException("Email already exists");
         }
 
+        boolean mobileChanged = !student.getMobileNumber().equals(request.getMobileNumber());
 
-        if (!student.getMobileNumber().equals(request.getMobileNumber()) && studentRepository.existsByMobileNumberAndDeletedAtIsNull(request.getMobileNumber())) {
-
+        if (mobileChanged && studentRepository.existsByMobileNumberAndDeletedAtIsNull(request.getMobileNumber())) {
             throw new DuplicateResourceException("Mobile number already exists");
         }
-
 
         StudentMapper.updateEntity(student, request);
 
         Student updatedStudent = studentRepository.save(student);
+
         return StudentMapper.toUpdateResponse(updatedStudent);
     }
 

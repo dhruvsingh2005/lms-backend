@@ -1,6 +1,5 @@
 package com.arishi.lms_backend.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -14,7 +13,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 
-public class StudentUpadateProDTO {
+public class StudentUpdateProfileDTO {
 
 
     private Long id;

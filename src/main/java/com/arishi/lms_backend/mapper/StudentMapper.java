@@ -1,7 +1,7 @@
 package com.arishi.lms_backend.mapper;
 
 import com.arishi.lms_backend.dto.StudentDTO;
-import com.arishi.lms_backend.dto.StudentUpadateProDTO;
+import com.arishi.lms_backend.dto.StudentUpdateProfileDTO;
 import com.arishi.lms_backend.entity.Student;
 
 public class StudentMapper {
@@ -21,22 +21,19 @@ public class StudentMapper {
 
     public static StudentDTO toStudentDto(Student student) {
 
-        return new StudentDTO(student.getId(), student.getFirstName(), student.getLastName(), null, // password response me nahi bhejna
-                student.getEmail(), student.getMobileNumber());
+        return new StudentDTO(student.getId(), student.getFirstName(), student.getLastName(), null, student.getEmail(), student.getMobileNumber());
     }
 
-
-    // Update API
-    public static void updateEntity(Student student, StudentUpadateProDTO request) {
+    public static void updateEntity(Student student, StudentUpdateProfileDTO request) {
         student.setFirstName(request.getFirstName());
         student.setLastName(request.getLastName());
         student.setEmail(request.getEmail());
         student.setMobileNumber(request.getMobileNumber());
     }
 
-    public static StudentUpadateProDTO toUpdateResponse(Student student) {
+    public static StudentUpdateProfileDTO toUpdateResponse(Student student) {
 
-        StudentUpadateProDTO response = new StudentUpadateProDTO();
+        StudentUpdateProfileDTO response = new StudentUpdateProfileDTO();
 
         response.setId(student.getId());
         response.setFirstName(student.getFirstName());
