@@ -2,7 +2,7 @@ package com.arishi.lms_backend.controller;
 
 import com.arishi.lms_backend.dto.ApiResponse;
 import com.arishi.lms_backend.dto.request.LoginRequest;
-
+import com.arishi.lms_backend.dto.response.LogInUserResponse;
 import com.arishi.lms_backend.service.AuthService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -22,7 +22,7 @@ public class AuthController {
 
     @PostMapping("/public/v1/auth/login")
     public ResponseEntity<ApiResponse> login(@RequestParam(required = true) String role, @Valid @RequestBody LoginRequest request, HttpServletResponse response) {
-    	authService.login(request, role, response);
-        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(HttpStatus.OK.value(), List.of("Login successful"), null));
+    	LogInUserResponse logInUserResponse = authService.login(request, role, response);
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(HttpStatus.OK.value(), List.of("Login successful"), logInUserResponse));
     }
 }

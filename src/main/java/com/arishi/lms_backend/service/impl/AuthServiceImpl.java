@@ -1,6 +1,7 @@
 package com.arishi.lms_backend.service.impl;
 
 import com.arishi.lms_backend.dto.request.LoginRequest;
+import com.arishi.lms_backend.dto.response.LogInUserResponse;
 import com.arishi.lms_backend.entity.Instructor;
 import com.arishi.lms_backend.entity.Student;
 import com.arishi.lms_backend.repo.InstructorRepo;
@@ -31,7 +32,7 @@ public class AuthServiceImpl implements AuthService {
     private final AuthUtils authUtils;
 
     @Override
-    public void login(LoginRequest request, String role, HttpServletResponse response) {
+    public LogInUserResponse login(LoginRequest request, String role, HttpServletResponse response) {
 
         LoginUser loginUser = getLoginUser(request.getEmail(), role);
 
@@ -42,6 +43,8 @@ public class AuthServiceImpl implements AuthService {
         ResponseCookie accessTokenCookie = CookieUtils.createAccessTokenCookie(accessToken);
 
         response.addHeader(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
+        
+        return new LogInUserResponse(role);
     }
 
     private LoginUser getLoginUser(String email, String role) {

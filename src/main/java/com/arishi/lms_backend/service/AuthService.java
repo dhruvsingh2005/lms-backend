@@ -1,9 +1,11 @@
 package com.arishi.lms_backend.service;
 
 import com.arishi.lms_backend.dto.request.LoginRequest;
+import com.arishi.lms_backend.dto.response.LogInUserResponse;
+
 import jakarta.servlet.http.HttpServletResponse;
 
 public interface AuthService {
 
-    void login(LoginRequest request, String role, HttpServletResponse response);
+    LogInUserResponse login(LoginRequest request, String role, HttpServletResponse response);
 }
