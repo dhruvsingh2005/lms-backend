@@ -28,4 +28,5 @@ public class Enrollment extends BaseEntity {
     @Column(nullable = false)
     private EnrollmentStatus status = EnrollmentStatus.PENDING;
 
+
 }

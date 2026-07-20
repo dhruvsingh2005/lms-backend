@@ -25,7 +25,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        if (!(request.getRequestURI().startsWith("/api/public"))) {
+        if (!(request.getRequestURI().startsWith("/api/public") ||
+        		request.getRequestURI().startsWith("/swagger-ui") ||
+        		request.getRequestURI().startsWith("/v3/api-docs") ||
+        		request.getRequestURI().equals("/swagger-ui.html"))) {
             String accessToken = null;
             Cookie[] cookies = request.getCookies();
 
