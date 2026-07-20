@@ -36,7 +36,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
         Student student = studentRepository.findByIdAndDeletedAtIsNull(studentId).orElseThrow(() -> new ResourceNotFoundException("Student not found"));
 
-        // fiend course
+        // find course
         Course course = courseRepository.findById(courseId).orElseThrow(() -> new ResourceNotFoundException("Course not found"));
 
         //duplicate enrollment check
@@ -51,7 +51,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
             throw new BadRequestException("Enrollment is closed because the course has ended.");
         }
 
-        Enrollment enrollment = EnrolllmentMapper.toEntity(student, course);
+        Enrollment enrollment = EnrollmentMapper.toEntity(student, course);
 
         Enrollment savedEnrollment = enrollmentRepository.save(enrollment);
 
