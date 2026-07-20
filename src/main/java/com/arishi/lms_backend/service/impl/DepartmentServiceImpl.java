@@ -4,7 +4,7 @@ import com.arishi.lms_backend.dto.DepartmentDTO;
 import com.arishi.lms_backend.entity.Department;
 import com.arishi.lms_backend.exception.customException.DuplicateResourceException;
 import com.arishi.lms_backend.mapper.DepartmentMapper;
-import com.arishi.lms_backend.repo.DepartmentRepository;
+import com.arishi.lms_backend.repo.DepartmentRepo;
 import com.arishi.lms_backend.service.DepartmentService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class DepartmentServiceImpl implements DepartmentService {
 
-    private final DepartmentRepository departmentRepository;
+    private final DepartmentRepo departmentRepository;
 
     @Override
     public DepartmentDTO createDepartment(DepartmentDTO request) {

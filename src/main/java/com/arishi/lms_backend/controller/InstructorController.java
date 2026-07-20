@@ -4,7 +4,6 @@ import com.arishi.lms_backend.dto.ApiResponse;
 import com.arishi.lms_backend.dto.InstructorDTO;
 import com.arishi.lms_backend.service.InstructorService;
 import jakarta.validation.Valid;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.arishi.lms_backend.dto.CourseDTO;
 import com.arishi.lms_backend.service.CourseService;
+import com.arishi.lms_backend.service.AssignmentService;
+import com.arishi.lms_backend.dto.AssignmentSummaryDto;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -25,6 +26,8 @@ public class InstructorController {
 	private final CourseService courseService;
 
 	private final InstructorService instructorService;
+
+	private final AssignmentService assignmentService;
 
 	@PostMapping("/public/v1/instructor")
 	public ResponseEntity<ApiResponse> createInstructor(@Valid @RequestBody InstructorDTO request) {
@@ -68,4 +71,19 @@ public class InstructorController {
 
         return ResponseEntity.ok(response);
     }
+
+	@GetMapping("/v1/instructor/course/{courseId}/assignments")
+	public ResponseEntity<ApiResponse> getCourseAssignmentsByStatus(@PathVariable Long courseId, @RequestParam String status) {
+
+		List<AssignmentSummaryDto> assignments = assignmentService.getAssignmentsForCourseByStatus(courseId,status);
+
+		ApiResponse response;
+		if (assignments.isEmpty()) {
+			response = new ApiResponse(HttpStatus.OK.value(), List.of("No " + status + " assignments found."), assignments);
+		} else {
+			response = new ApiResponse(HttpStatus.OK.value(), List.of("Assignments fetched successfully"), assignments);
+		}
+
+		return ResponseEntity.ok(response);
+	}
 }

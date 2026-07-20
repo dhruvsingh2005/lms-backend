@@ -1,6 +1,7 @@
 package com.arishi.lms_backend.mapper;
 
 import com.arishi.lms_backend.dto.AssignmentDto;
+import com.arishi.lms_backend.dto.AssignmentDetailDto;
 import com.arishi.lms_backend.entity.Assignment;
 import com.arishi.lms_backend.entity.Course;
 
@@ -27,5 +28,14 @@ public class AssignmentMapper {
 		assignmentDto.setAssignmentUrl("/api/v1/assignment/" + assignment.getId() + "/pdf");
 		
 		return assignmentDto;
+	}
+
+	public static AssignmentDetailDto toAssignmentDetailDto(Assignment assignment, Long submissionCount) {
+		return new AssignmentDetailDto(
+				assignment.getId(),
+				assignment.getTitle(),
+				assignment.getDescription(),
+				assignment.getDueDate(),
+				submissionCount);
 	}
 }

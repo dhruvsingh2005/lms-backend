@@ -1,6 +1,9 @@
 package com.arishi.lms_backend.service;
 
 import com.arishi.lms_backend.dto.StudentDTO;
+import com.arishi.lms_backend.dto.StudentAssignmentDto;
+
+import java.util.List;
 
 public interface StudentService {
 
@@ -10,4 +13,5 @@ public interface StudentService {
 
     StudentDTO getStudentProfile();
 
+    List<StudentAssignmentDto> getStudentAssignmentsByStatus(Long courseId, String status);
 }

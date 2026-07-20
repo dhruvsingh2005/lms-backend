@@ -3,8 +3,8 @@ package com.arishi.lms_backend.service.impl;
 import com.arishi.lms_backend.dto.request.LoginRequest;
 import com.arishi.lms_backend.entity.Instructor;
 import com.arishi.lms_backend.entity.Student;
-import com.arishi.lms_backend.repo.InstructorRepository;
-import com.arishi.lms_backend.repo.StudentRepository;
+import com.arishi.lms_backend.repo.InstructorRepo;
+import com.arishi.lms_backend.repo.StudentRepo;
 import com.arishi.lms_backend.service.AuthService;
 import com.arishi.lms_backend.util.AuthUtils;
 import com.arishi.lms_backend.util.CookieUtils;
@@ -25,8 +25,8 @@ public class AuthServiceImpl implements AuthService {
     private static final String ROLE_STUDENT = "student";
     private static final String ROLE_INSTRUCTOR = "instructor";
 
-    private final StudentRepository studentRepository;
-    private final InstructorRepository instructorRepository;
+    private final StudentRepo studentRepository;
+    private final InstructorRepo instructorRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthUtils authUtils;
 
