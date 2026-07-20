@@ -21,4 +21,5 @@ public interface CourseRepo extends JpaRepository<Course, Long> {
 	Optional<Course> findByIdAndDeletedAtIsNull(Long id);
 	
 	Optional<Course> findByIdAndInstructorIdAndDeletedAtIsNull(Long id, Long instructorId);
-}
+
+     }

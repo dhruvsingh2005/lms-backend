@@ -2,6 +2,7 @@ package com.arishi.lms_backend.config.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
@@ -20,15 +21,26 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain customSecurityFilterChain(HttpSecurity httpSecurity) throws Exception {
 
-		httpSecurity
-		.csrf(csrf -> csrf.disable()).httpBasic(basic -> basic.disable()).formLogin(form -> form.disable())
-				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-				.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-
-		httpSecurity.authorizeHttpRequests(
-				auth -> auth.requestMatchers("/api/public/**").permitAll().anyRequest().authenticated());
-		return httpSecurity.build();
-	}
+    	httpSecurity
+       
+        .csrf(csrf -> csrf.disable())
+        .httpBasic(basic -> basic.disable())
+        .formLogin(form -> form.disable())
+        .sessionManagement(session ->
+                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        )
+        .addFilterBefore(
+                jwtAuthFilter,
+                UsernamePasswordAuthenticationFilter.class
+        );
+        httpSecurity.authorizeHttpRequests(auth -> auth.requestMatchers(
+                "/swagger-ui/**",
+                "/v3/api-docs/**",
+                "/swagger-ui.html"
+            ).permitAll()
+        		.requestMatchers("/api/public/**").permitAll().anyRequest().authenticated());
+        return httpSecurity.build();
+    }
 
 	@Bean
 	public PasswordEncoder getPasswordEncoder() {

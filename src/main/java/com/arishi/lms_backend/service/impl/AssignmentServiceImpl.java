@@ -1,4 +1,4 @@
-package com.arishi.lms_backend.service.serviceImpl;
+package com.arishi.lms_backend.service.impl;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
