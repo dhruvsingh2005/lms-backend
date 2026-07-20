@@ -15,8 +15,8 @@ import com.arishi.lms_backend.exception.customException.DuplicateResourceExcepti
 import com.arishi.lms_backend.exception.customException.ForbiddenException;
 import com.arishi.lms_backend.exception.customException.ResourceNotFoundException;
 import com.arishi.lms_backend.mapper.CourseMapper;
-import com.arishi.lms_backend.repo.CourseRepository;
-import com.arishi.lms_backend.repo.InstructorRepository;
+import com.arishi.lms_backend.repo.CourseRepo;
+import com.arishi.lms_backend.repo.InstructorRepo;
 import com.arishi.lms_backend.service.CourseService;
 import lombok.RequiredArgsConstructor;
 
@@ -25,8 +25,8 @@ import lombok.RequiredArgsConstructor;
 @Transactional
 public class CourseServiceImpl implements CourseService {
 
-	private final CourseRepository courseRepository;
-	private final InstructorRepository instructorRepository;
+	private final CourseRepo courseRepository;
+	private final InstructorRepo instructorRepository;
 
 	@Override
 	public CourseDTO createCourse(CourseDTO request) {

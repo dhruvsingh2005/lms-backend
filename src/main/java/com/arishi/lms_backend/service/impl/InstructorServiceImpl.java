@@ -7,8 +7,8 @@ import com.arishi.lms_backend.entity.Instructor;
 import com.arishi.lms_backend.exception.customException.DuplicateResourceException;
 import com.arishi.lms_backend.exception.customException.ResourceNotFoundException;
 import com.arishi.lms_backend.mapper.InstructorMapper;
-import com.arishi.lms_backend.repo.DepartmentRepository;
-import com.arishi.lms_backend.repo.InstructorRepository;
+import com.arishi.lms_backend.repo.DepartmentRepo;
+import com.arishi.lms_backend.repo.InstructorRepo;
 import com.arishi.lms_backend.service.InstructorService;
 import lombok.AllArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
@@ -19,8 +19,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class InstructorServiceImpl implements InstructorService {
 
-    private final InstructorRepository instructorRepository;
-    private final DepartmentRepository departmentRepository;
+    private final InstructorRepo instructorRepository;
+    private final DepartmentRepo departmentRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override

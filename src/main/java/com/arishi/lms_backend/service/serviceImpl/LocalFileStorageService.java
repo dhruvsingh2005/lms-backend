@@ -51,6 +51,19 @@ public class LocalFileStorageService implements FileStorageService {
 	}
 
 	@Override
+	public String storeSubmissionPdf(MultipartFile file, Long assignmentId, Long studentId) {
+		String storageKey = "assignment-" + assignmentId + "/submission-" + studentId + "/" + UUID.randomUUID() + ".pdf";
+		Path target = resolveStorageKey(storageKey);
+		try {
+			Files.createDirectories(target.getParent());
+			file.transferTo(target);
+			return storageKey;
+		} catch (IOException exception) {
+			throw new UncheckedIOException("Could not store submission PDF", exception);
+		}
+	}
+
+	@Override
 	public Resource loadAssignmentPdf(String storageKey) {
 		Path filePath = resolveStorageKey(storageKey);
 
@@ -67,6 +80,11 @@ public class LocalFileStorageService implements FileStorageService {
 		} catch (IOException exception) {
 			throw new UncheckedIOException("Could not load assignment PDF", exception);
 		}
+	}
+
+	@Override
+	public Resource loadSubmissionPdf(String storageKey) {
+		return loadAssignmentPdf(storageKey);
 	}
 
 	private Path resolveStorageKey(String storageKey) {

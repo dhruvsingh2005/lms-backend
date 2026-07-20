@@ -1,6 +1,7 @@
 package com.arishi.lms_backend.controller;
 
 import com.arishi.lms_backend.dto.ApiResponse;
+import com.arishi.lms_backend.dto.StudentAssignmentDto;
 import com.arishi.lms_backend.dto.StudentDTO;
 import com.arishi.lms_backend.service.StudentService;
 import jakarta.validation.Valid;
@@ -43,4 +44,13 @@ public class StudentController {
 
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/v1/student/course/{courseId}/assignment")
+    public ResponseEntity<ApiResponse> getStudentAssignmentsByStatus(@PathVariable Long courseId, @RequestParam String status) {
+
+        List<StudentAssignmentDto> assignments = studentService.getStudentAssignmentsByStatus(courseId, status);
+        ApiResponse response = new ApiResponse(200, List.of("Assignments fetched successfully"), assignments);
+        return ResponseEntity.ok(response);
+    }
 }
+

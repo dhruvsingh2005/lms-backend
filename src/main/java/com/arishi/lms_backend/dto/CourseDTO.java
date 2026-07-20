@@ -40,11 +40,9 @@ public class CourseDTO {
 
 	@AssertTrue(message = "End date must be after start date.")
 	public boolean isValidDateRange() {
-
 		if (startDate == null || endDate == null) {
 			return true;
 		}
-
 		return endDate.isAfter(startDate);
 	}
 
