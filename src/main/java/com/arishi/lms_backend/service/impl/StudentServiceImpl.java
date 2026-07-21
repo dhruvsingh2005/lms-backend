@@ -11,6 +11,7 @@ import com.arishi.lms_backend.dto.StudentAssignmentDto;
 import com.arishi.lms_backend.dto.StudentDTO;
 import com.arishi.lms_backend.entity.Assignment;
 import com.arishi.lms_backend.entity.AssignmentSubmission;
+import com.arishi.lms_backend.dto.StudentUpdateProfileDTO;
 import com.arishi.lms_backend.entity.Student;
 import com.arishi.lms_backend.enums.EnrollmentStatus;
 import com.arishi.lms_backend.exception.customException.BadRequestException;
@@ -23,6 +24,7 @@ import com.arishi.lms_backend.repo.CourseRepo;
 import com.arishi.lms_backend.repo.EnrollmentRepo;
 import com.arishi.lms_backend.repo.StudentRepo;
 import com.arishi.lms_backend.service.StudentService;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -169,4 +171,40 @@ public class StudentServiceImpl implements StudentService {
                 assignment.getDueDate()
         );
     }
-}
+
+
+    @Override
+    @Transactional
+    public StudentUpdateProfileDTO updateStudentProfile(StudentUpdateProfileDTO request) {
+
+        Long studentId = CurrentUser.getId();
+        String role = CurrentUser.getRole();
+
+        if (!"student".equalsIgnoreCase(role)) {
+            throw new AccessDeniedException("Only students can update this profile");
+        }
+
+
+        Student student = studentRepository.findByIdAndDeletedAtIsNull(studentId).orElseThrow(() -> new ResourceNotFoundException("Student not found"));
+
+        boolean emailChanged = !student.getEmail().equalsIgnoreCase(request.getEmail());
+
+        if (emailChanged && studentRepository.existsByEmailAndDeletedAtIsNull(request.getEmail())) {
+            throw new DuplicateResourceException("Email already exists");
+        }
+
+        boolean mobileChanged = !student.getMobileNumber().equals(request.getMobileNumber());
+
+        if (mobileChanged && studentRepository.existsByMobileNumberAndDeletedAtIsNull(request.getMobileNumber())) {
+            throw new DuplicateResourceException("Mobile number already exists");
+        }
+
+        StudentMapper.updateEntity(student, request);
+
+        Student updatedStudent = studentRepository.save(student);
+
+        return StudentMapper.toUpdateResponse(updatedStudent);
+    }
+
+}
+
