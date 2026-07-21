@@ -35,17 +35,12 @@ public class InstructorServiceImpl implements InstructorService {
         }
 
         Department department = departmentRepository.findById(request.getDepartmentId()).orElseThrow(() -> new ResourceNotFoundException("Department not found"));
-
         Instructor instructor = InstructorMapper.toEntity(request, department);
-
         instructor.setPasswordHash(passwordEncoder.encode(request.getPassword()));
-        // instructor.setDepartment(department);
-
         Instructor saved = instructorRepository.save(instructor);
 
         return InstructorMapper.toInstructorDto(saved);
     }
-
     @Override
     public InstructorDTO getInstructorProfile() {
 
@@ -55,11 +50,8 @@ public class InstructorServiceImpl implements InstructorService {
         if (!"instructor".equalsIgnoreCase(role)) {
             throw new AccessDeniedException("Only instructor can access this profile");
         }
-
         Instructor instructor = instructorRepository.findByIdAndDeletedAtIsNull(instructorId).orElseThrow(() -> new ResourceNotFoundException("Instructor not found"));
 
         return InstructorMapper.toInstructorDto(instructor);
     }
-
-
 }

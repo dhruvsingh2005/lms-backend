@@ -6,9 +6,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.arishi.lms_backend.config.security.CurrentUser;
-import com.arishi.lms_backend.dto.CourseContentResponseDTO;
-import com.arishi.lms_backend.dto.CourseResponseDTO;
 import com.arishi.lms_backend.dto.request.CourseRequestDTO;
+import com.arishi.lms_backend.dto.response.CourseContentResponseDTO;
+import com.arishi.lms_backend.dto.response.CourseResponseDTO;
 import com.arishi.lms_backend.entity.Course;
 import com.arishi.lms_backend.entity.Instructor;
 import com.arishi.lms_backend.enums.EnrollmentStatus;

@@ -1,9 +1,9 @@
 package com.arishi.lms_backend.controller;
 
 import com.arishi.lms_backend.dto.ApiResponse;
-import com.arishi.lms_backend.dto.CourseResponseDTO;
 import com.arishi.lms_backend.dto.InstructorDTO;
 import com.arishi.lms_backend.dto.request.CourseRequestDTO;
+import com.arishi.lms_backend.dto.response.CourseResponseDTO;
 import com.arishi.lms_backend.service.InstructorService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
