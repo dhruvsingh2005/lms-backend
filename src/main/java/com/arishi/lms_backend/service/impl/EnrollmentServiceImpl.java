@@ -10,11 +10,12 @@ import com.arishi.lms_backend.exception.customException.DuplicateResourceExcepti
 import com.arishi.lms_backend.exception.customException.ResourceNotFoundException;
 import com.arishi.lms_backend.mapper.EnrollmentMapper;
 import com.arishi.lms_backend.repo.CourseRepository;
-import com.arishi.lms_backend.repo.EnrollmentRepository;
+import com.arishi.lms_backend.repo.EnrollmentRepo;
 import com.arishi.lms_backend.repo.StudentRepository;
 import com.arishi.lms_backend.service.EnrollmentService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -25,7 +26,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
     private final StudentRepository studentRepository;
     private final CourseRepository courseRepository;
-    private final EnrollmentRepository enrollmentRepository;
+    private final EnrollmentRepo enrollmentRepo;
 
     @Override
     @Transactional
@@ -33,14 +34,18 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
         // get currentUser id
         Long studentId = CurrentUser.getId();
+        String studentRole = CurrentUser.getRole();
+
+        if (!"student".equalsIgnoreCase(studentRole)) {
+            throw new AccessDeniedException("Only students can enroll in courses.");
+        }
 
         Student student = studentRepository.findByIdAndDeletedAtIsNull(studentId).orElseThrow(() -> new ResourceNotFoundException("Student not found"));
 
-        // find course
-        Course course = courseRepository.findById(courseId).orElseThrow(() -> new ResourceNotFoundException("Course not found"));
+        Course course = courseRepository.findByIdAndDeletedAtIsNull(courseId).orElseThrow(() -> new ResourceNotFoundException("Course not found"));
 
         //duplicate enrollment check
-        if (enrollmentRepository.existsByStudentAndCourse(student, course)) {
+        if (enrollmentRepo.existsByStudentAndCourseAndDeletedAtIsNull(student, course)) {
             throw new DuplicateResourceException("Student is already enrolled in this course");
         }
 
@@ -53,7 +58,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
         Enrollment enrollment = EnrollmentMapper.toEntity(student, course);
 
-        Enrollment savedEnrollment = enrollmentRepository.save(enrollment);
+        Enrollment savedEnrollment = enrollmentRepo.save(enrollment);
 
         return EnrollmentMapper.toEnrollmentResponseDTO(savedEnrollment);
     }
