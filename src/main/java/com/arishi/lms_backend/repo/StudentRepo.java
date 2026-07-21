@@ -14,4 +14,5 @@ public interface StudentRepo extends JpaRepository<Student, Long> {
     Optional<Student> findByEmailAndDeletedAtIsNull(String email);
 
     Optional<Student> findByIdAndDeletedAtIsNull(Long id);
+
 }
