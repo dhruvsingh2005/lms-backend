@@ -178,6 +178,12 @@ public class StudentServiceImpl implements StudentService {
     public StudentUpdateProfileDTO updateStudentProfile(StudentUpdateProfileDTO request) {
 
         Long studentId = CurrentUser.getId();
+        String role = CurrentUser.getRole();
+
+        if (!"student".equalsIgnoreCase(role)) {
+            throw new AccessDeniedException("Only students can update this profile");
+        }
+
 
         Student student = studentRepository.findByIdAndDeletedAtIsNull(studentId).orElseThrow(() -> new ResourceNotFoundException("Student not found"));
 
