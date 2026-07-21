@@ -1,17 +1,17 @@
 package com.arishi.lms_backend.mapper;
 
-import com.arishi.lms_backend.dto.CourseContentResponseDTO;
-import com.arishi.lms_backend.dto.CourseResponseDTO;
 import com.arishi.lms_backend.dto.request.CourseRequestDTO;
+import com.arishi.lms_backend.dto.response.CourseContentResponseDTO;
+import com.arishi.lms_backend.dto.response.CourseResponseDTO;
 import com.arishi.lms_backend.entity.Course;
 import com.arishi.lms_backend.entity.Instructor;
 
 public class CourseMapper {
 
-    public static Course toEntity(
-            CourseRequestDTO dto,
-            Instructor instructor
-    ) {
+    private CourseMapper() {
+    }
+
+    public static Course toEntity(CourseRequestDTO dto, Instructor instructor) {
 
         Course course = new Course();
 
@@ -26,41 +26,27 @@ public class CourseMapper {
         return course;
     }
 
-   
     public static CourseResponseDTO toResponseDto(Course course) {
 
         return new CourseResponseDTO(
-
                 course.getId(),
-
                 course.getTitle(),
-
                 course.getDescription(),
-
                 course.getInstructor().getId(),
-
+                course.getInstructor().getFirstName() + " " + course.getInstructor().getLastName(),
                 course.getStartDate(),
-
                 course.getEndDate(),
-
                 course.getPrice()
-
         );
     }
 
     public static CourseContentResponseDTO toContentResponseDto(Course course) {
 
         return new CourseContentResponseDTO(
-
                 course.getId(),
-
                 course.getTitle(),
-
                 course.getDescription(),
-
                 course.getCourseContent()
-
         );
     }
-
 }

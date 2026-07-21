@@ -1,4 +1,4 @@
-package com.arishi.lms_backend.dto;
+package com.arishi.lms_backend.dto.response;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -19,6 +19,8 @@ public class CourseResponseDTO {
     private String description;
 
     private Long instructorId;
+    
+    private String instructorName;
 
     private LocalDate startDate;
 

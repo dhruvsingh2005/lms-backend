@@ -1,4 +1,4 @@
-package com.arishi.lms_backend.dto;
+package com.arishi.lms_backend.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

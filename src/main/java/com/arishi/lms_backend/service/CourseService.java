@@ -2,9 +2,9 @@ package com.arishi.lms_backend.service;
 
 import java.util.List;
 
-import com.arishi.lms_backend.dto.CourseContentResponseDTO;
-import com.arishi.lms_backend.dto.CourseResponseDTO;
 import com.arishi.lms_backend.dto.request.CourseRequestDTO;
+import com.arishi.lms_backend.dto.response.CourseContentResponseDTO;
+import com.arishi.lms_backend.dto.response.CourseResponseDTO;
 
 public interface CourseService {
 

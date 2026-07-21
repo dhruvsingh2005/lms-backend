@@ -6,9 +6,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.arishi.lms_backend.dto.ApiResponse;
-import com.arishi.lms_backend.dto.CourseContentResponseDTO;
-import com.arishi.lms_backend.dto.CourseResponseDTO;
 import com.arishi.lms_backend.dto.request.CourseRequestDTO;
+import com.arishi.lms_backend.dto.response.CourseContentResponseDTO;
+import com.arishi.lms_backend.dto.response.CourseResponseDTO;
 import com.arishi.lms_backend.service.CourseService;
 
 import jakarta.validation.Valid;
